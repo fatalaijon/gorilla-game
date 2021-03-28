@@ -13,12 +13,13 @@ class Monkey(Sprite):
         """
         w = self.image.width()
         h = self.image.height()
-        dx = abs(x- self.x)
-        dy = abs(y -self.y)
+        dx = abs(x - self.x)
+        dy = abs(y - self.y)
         if dx > w/2: return False
-        if dy > w/2: return False
+        if dy > h/2: return False
         # Exclude the 4 corners of bounding box of the image
-        if dx > w/4 and dy > w/4: return False
+        # This is empty space not occupied by the monkey
+        if dx > w/4 and dy > h/4: return False
         return True
 
     def init_element(self):

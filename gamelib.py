@@ -80,7 +80,7 @@ class Text(GameCanvasElement):
     
     def append_text(self, text):
         self.set_text(self.text + text)
-        
+
     def set_color(self, color):
         self.canvas.itemconfigure(self.canvas_object_id, color=color)
         
@@ -143,7 +143,6 @@ class GameApp(ttk.Frame):
         with update() and render() methods.
         """
         if not element in self.elements:
-            print("Append element", element)
             self.elements.append(element)
 
     def remove_element(self, element):

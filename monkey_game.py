@@ -10,7 +10,7 @@ import building
 
 CANVAS_WIDTH = 800
 CANVAS_HEIGHT = 500
-# use a color that does not appear in Sprite image for monkey or banana
+# use a color that does not appear in the images for monkey or banana
 CANVAS_COLOR = "medium blue"
 
 UPDATE_DELAY = 60  # 33
