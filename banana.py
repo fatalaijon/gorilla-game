@@ -2,7 +2,7 @@ import tkinter as tk
 import math
 from gamelib import Sprite
 from monkey_game import CANVAS_WIDTH, CANVAS_HEIGHT, GRAVITY
-
+from util import trace
 
 class Banana(Sprite):
     """A banana that can be thrown at a player.  
@@ -14,6 +14,9 @@ class Banana(Sprite):
     externally.
     The banana remembers it's initial speed and direction for next throw.
     """
+    # maximum initial speed of banana
+    MAX_SPEED = 99
+
     def __init__(self, game_app, image_filename, x=0, y=0):
         super().__init__(game_app, image_filename, x, y)
         # create images for a spinning banana, by rotating existing image
@@ -46,8 +49,12 @@ class Banana(Sprite):
     
     @speed.setter
     def speed(self, value):
-        """Set the initial speed"""
-        self._speed = value
+        """Set the initial speed for next toss of banana.
+        
+        The speed must be between 0 and MAX_SPEED.
+        """
+        if 0 <= value <= Banana.MAX_SPEED:
+            self._speed = value
     
     @property
     def angle(self):
@@ -95,6 +102,9 @@ class Banana(Sprite):
     
     def hits(self, element) -> bool:
         """Test if the banana hits a game element."""
+        if not self.is_moving:
+            # a hit can occur only _after_ the banana is thrown
+            return False
         x = self.x
         y = self.y
         # use actual image bounds or tighten to min as done here?
@@ -103,3 +113,6 @@ class Banana(Sprite):
         if element.contains(x+r,y) or element.contains(x-r,y): return True
         if element.contains(x,y-r) or element.contains(x,y+r): return True
         return False
+    
+    def __str__(self):
+        return f"Banana at (self.x:.0f,self.y:.0f)"

@@ -1,6 +1,8 @@
 ## Gorilla Game
 
-A re-implementation of the old Basic Gorilla game.
+A re-implementation of the classic Basic Gorilla game.
+
+*Because students shouldn't have all the fun.*
 
 ## Changes to Starter Code
 
@@ -8,6 +10,8 @@ In `gamelib.GameCanvasElement` the method `init_canvas_object()` must return the
 
 In `gamelib.GameApp`, `create_canvas()` returns the canvas reference
 instead of setting `self.canvas`.
+
+Rename `monkeys.py` to `monkey_game.py`.
 
 ## Images
 
@@ -26,7 +30,7 @@ parameters to initialize the phto image object.
 It also has this method:
 ```
 paste(image)
-    Paste Image object into a PhotoImage. Must have the same dimensions.
+    Paste Image object into a PhotoImage. `image` must have the same dimensions.
 ```
 
  

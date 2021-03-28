@@ -4,11 +4,12 @@ import tkinter.ttk as ttk
 from PIL import ImageTk
 
 class GameCanvasElement:
-    """An element on the game canvas.  Has attributes:
+    """An element on the game canvas, with attributes:
 
     x = x-coord of approximate center of image
     y = y-coord of approximate center of image
     canvas = reference to the game canvas
+    canvas_object_id = id of the object, used to manipulate it using canvas
     is_visible = boolean flag if element is visible
     """
     def __init__(self, game_app, x=0, y=0):
@@ -49,25 +50,39 @@ class GameCanvasElement:
         pass
 
     def contains(self, x, y):
-        """Test if the game element contains point x,y in its image"""
+        """Test if the game element contains point x,y in its image or its 'space'.
+        
+        Returns: True if (x,y) is inside the object's image or region.
+        """
         return False
 
 
 class Text(GameCanvasElement):
-    def __init__(self, game_app, text, x=0, y=0):
+    def __init__(self, game_app, text, x=0, y=0, **kwargs):
         self.text = text
-        super().__init__(game_app, x, y)
+        self.x = x
+        self.y = y
+        self.canvas = game_app.canvas
+        self.is_visible = True
+        self.canvas_object_id = self.init_canvas_object(**kwargs)
 
-    def init_canvas_object(self):
+    def init_canvas_object(self, **kwargs):
         object_id = self.canvas.create_text(
                     self.x, 
                     self.y,
-                    text=self.text)
+                    text=self.text,
+                    **kwargs)
         return object_id
 
     def set_text(self, text):
         self.text = text
         self.canvas.itemconfigure(self.canvas_object_id, text=text)
+    
+    def append_text(self, text):
+        self.set_text(self.text + text)
+        
+    def set_color(self, color):
+        self.canvas.itemconfigure(self.canvas_object_id, color=color)
         
 
 class Sprite(GameCanvasElement):
@@ -128,6 +143,7 @@ class GameApp(ttk.Frame):
         with update() and render() methods.
         """
         if not element in self.elements:
+            print("Append element", element)
             self.elements.append(element)
 
     def remove_element(self, element):
@@ -135,7 +151,10 @@ class GameApp(ttk.Frame):
         self.elements.remove(element)
 
     def animate(self):
-        """Animate each element on the canvas."""
+        """Animate each element on the canvas.
+        
+        A subclass may override this to provide it's own animation.
+        """
         for element in self.elements:
             element.update()
             element.render()

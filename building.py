@@ -1,6 +1,7 @@
+from gamelib import GameCanvasElement
 import tkinter as tk
 
-class Building:
+class Building(GameCanvasElement):
     """A building shown on the canvas.
     It has a width, height, color, and some randomly drawn windows.
     """
@@ -19,12 +20,22 @@ class Building:
         self.width = width
         self.height = height
         self.color = color
-        self.init_canvas_object()
+        self.canvas_object_id = self.init_canvas_object()
+        self.is_visible = True
 
     def init_canvas_object(self):
         xl = self.x - self.width/2
         xr = self.x + self.width/2
         ytop = self.y - self.height # coordinate system increased down
-        self.id = self.canvas.create_rectangle(xl, self.y, xr, ytop, fill=self.color)
+        id = self.canvas.create_rectangle(xl, self.y, xr, ytop, fill=self.color)
         # return the object_id
         return id
+
+    def contains(self, x, y):
+        return abs(x - self.x) < self.width/2 and self.y <= y <= self.y-self.height
+
+    def render(self):
+        pass
+
+    def __str__(self):
+        return f'{self.color} building'
