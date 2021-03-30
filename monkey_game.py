@@ -36,12 +36,12 @@ class MonkeyGame(GameApp):
 
     def create_sprites(self):
         
-        self.monkey = monkey.Monkey(self, 'monkey.png', 100, 400)
-        self.enemy = monkey.Monkey(self, 'monkey.png', 700, 400)
+        self.monkey = monkey.Monkey(self, 'images/monkey.png', 100, 400)
+        self.enemy = monkey.Monkey(self, 'images/monkey.png', 700, 400)
         # Monkey 1 throws the banana, so banana starts above monkey's head
         mx = self.monkey.x
         my = self.monkey.y - self.monkey.height/2 - 10 # 10 pixels above monkey
-        self.banana = banana.Banana(self, 'banana.png', mx, my)
+        self.banana = banana.Banana(self, 'images/banana.png', mx, my)
         # initial speed and angle of throw
         self.banana.angle = 60
         self.banana.speed = 20

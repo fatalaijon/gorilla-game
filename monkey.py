@@ -11,6 +11,8 @@ class Monkey(Sprite):
         """The point x,y is contained in the monkey's image if it
         hits any part of the `image.
         """
+        w = self.width
+        h = self.height
         dx = abs(x - self.x)
         dy = abs(y - self.y)
         if dx > w/2: return False

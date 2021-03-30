@@ -1,6 +1,6 @@
 def trace(fun):
     """
-    Print each function call
+    A decorator to print each function call and it's return value.
     Parameters:
         :fun: a function to decorate
     Returns:
