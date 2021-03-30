@@ -1,6 +1,8 @@
 from tkinter.constants import X
 from gamelib import Sprite
 
+# show the bounding box around monkey image, for development
+SHOW_BOUNDING_BOX = False
 
 class Monkey(Sprite):
     """A monkey that can throw bananas"""
@@ -24,8 +26,9 @@ class Monkey(Sprite):
 
     def init_element(self):
         """For debugging, draw a box around the monkey."""
-        (xl,yl,xr,yr) = self.canvas.bbox(self.canvas_object_id)
-        self.canvas.create_rectangle(xl, yl, xr, yr, outline='grey')
+        if SHOW_BOUNDING_BOX:
+            (xl,yl,xr,yr) = self.canvas.bbox(self.canvas_object_id)
+            self.canvas.create_rectangle(xl, yl, xr, yr, outline='grey')
 
     def __str__(self):
         return f"Monkey at (self.image.x,self.image.y)"

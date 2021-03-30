@@ -15,12 +15,17 @@ class GameCanvasElement:
     def __init__(self, game_app, x=0, y=0):
         self.x = x
         self.y = y
-        self.canvas: tk.Canvas = game_app.canvas
+        self.app = game_app
 
         self.is_visible = True
 
         self.canvas_object_id = self.init_canvas_object()
         self.init_element()
+
+    @property
+    def canvas(self):
+        """Return a reference to the game app's canvas."""
+        return self.app.canvas
 
     def show(self):
         self.is_visible = True
@@ -62,7 +67,7 @@ class Text(GameCanvasElement):
         self.text = text
         self.x = x
         self.y = y
-        self.canvas = game_app.canvas
+        self.app = game_app
         self.is_visible = True
         self.canvas_object_id = self.init_canvas_object(**kwargs)
 

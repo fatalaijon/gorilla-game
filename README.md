@@ -6,16 +6,20 @@ A re-implementation of the classic Basic Gorilla game.
 
 ## Changes to Starter Code
 
-In `gamelib.GameCanvasElement` 
-* method `init_canvas_object()` must return the object id (int).  This fixes warnings from VSCode about unknown symbol `self.canvas_object_id`, and avoids depending on a side-effect.
 
 In `gamelib.GameApp`:
 * `create_canvas()` returns the canvas reference instead of setting `self.canvas`.
 * add methods `add_element(element)` and `remove_element(element)` so subclasses don't need to directly modify the elements attribute
 * `contains(x, y)` returns True if a game element contains point (x,y). This method is needed to detect collision between banana and a game element.
 
+In `gamelib.GameCanvasElement` 
+* method `init_canvas_object()` must return the object id (int).  This fixes warnings from VSCode about unknown symbol `self.canvas_object_id`, and avoids depending on a side-effect.
+* `app` - a reference to the GameApp object that was passed to the constructor. Useful so an element can remove itself from the game.
+* `canvas` - a property that returns `self.app.canvas`
+
 In `gamelib.Sprite`
 * add properties `width` and `height` as convenience to get the Sprite's image width and height
+* `app` and `canvas` - same as in `GameCanvasElement`.
 
 Rename `monkeys.py` to `monkey_game.py`.
 

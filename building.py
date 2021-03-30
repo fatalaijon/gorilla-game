@@ -1,4 +1,4 @@
-from gamelib import GameCanvasElement
+from gamelib import GameCanvasElement, GameApp
 import tkinter as tk
 
 class Building(GameCanvasElement):
@@ -6,7 +6,7 @@ class Building(GameCanvasElement):
     It has a width, height, color, and some randomly drawn windows.
     """
 
-    def __init__(self, canvas: tk.Canvas, x, y, width, height, color):
+    def __init__(self, game_app: GameApp, x, y, width, height, color):
         """Initialize a new building.
         Arguments:
             x - the center of the building
@@ -14,7 +14,7 @@ class Building(GameCanvasElement):
             width - the building width
             height - the building height
         """
-        self.canvas = canvas
+        self.app = game_app
         self.x = x
         self.y = y
         self.width = width

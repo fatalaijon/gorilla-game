@@ -7,7 +7,7 @@ from gamelib import Sprite, GameApp, Text
 import banana  # for Banana class
 import monkey  # for Monkey class
 import building
-#import explosion
+import explosion
 
 CANVAS_WIDTH = 800
 CANVAS_HEIGHT = 500
@@ -33,11 +33,13 @@ class MonkeyGame(GameApp):
         # call the update methods so that the actual speed/angle are shown on labels
         self.increase_speed(0)
         self.increase_angle(0)
+        # handle mouse clicks
+        self.parent.bind("<Button-1>", self.on_click)
 
     def create_sprites(self):
         
-        self.monkey = monkey.Monkey(self, 'images/monkey.png', 100, 400)
-        self.enemy = monkey.Monkey(self, 'images/monkey.png', 700, 400)
+        self.monkey = monkey.Monkey(self, 'images/monkey.png', 100, 450)
+        self.enemy = monkey.Monkey(self, 'images/monkey.png', 700, 450)
         # Monkey 1 throws the banana, so banana starts above monkey's head
         mx = self.monkey.x
         my = self.monkey.y - self.monkey.height/2 - 10 # 10 pixels above monkey
@@ -51,17 +53,17 @@ class MonkeyGame(GameApp):
         self.add_element(self.enemy)
         self.textbox = Text(self, 
                 f"({self.banana.x:.0f},{self.banana.y:.0f})", 
-                70, 20,  # show text in upper left corner of canvas
+                80, 40,  # show text in upper left corner of canvas
                 fill="white",
                 justify=tk.LEFT,
                 font=font.Font(family="Monospace",size=18)
                 )
-        # y-coordinte of the baseline of building (a pure guess)
-        ybase = 500
-        self.create_buildings(ybase)
+        # y-coordinte of the baseline of building
+        baseline = 500
+        self.create_buildings(baseline)
 
     def create_buildings(self, baseline):
-        bldg = building.Building(self.canvas, 300, baseline, 120, 200, "red")
+        bldg = building.Building(self, 300, baseline, 120, 200, "red")
         self.add_element(bldg)
 
     def init_control_panel(self):
@@ -118,10 +120,16 @@ class MonkeyGame(GameApp):
             if not self.banana.is_moving:
                 self.banana.reset()
                 self.banana.start()
-#        elif event.keysym == "Return" or event.keysym == "KP_Enter":
-#            # test explosion
-#            bomb = explosion.Explosion(self, CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
-#            self.add_element(bomb)
+
+    def on_click(self, event):
+        """Handle mouse click event.  Create an explosion (for testing)."""
+        x = event.x
+        y = event.y
+        widget = self.canvas.winfo_containing(x,y)
+        if widget:
+            print(f"{widget} at ({x},{y})")
+        bomb = explosion.Explosion(self, x, y)
+        self.add_element(bomb)
 
     def animate(self):
         """Override GameApp.animate in order to check for collisions."""
@@ -134,9 +142,10 @@ class MonkeyGame(GameApp):
                 # banana can't hit itself
                 continue
             if self.banana.hits(element):
-                self.textbox.append_text(f" BOOM! Hit {element}")
                 print(f"Boom! banana hits {element}")
                 self.banana.stop()
+                bomb = explosion.Explosion(self, self.banana.x, self.banana.y)
+                self.add_element(bomb)
                 break
         
         self.after(self.update_delay, self.animate)
