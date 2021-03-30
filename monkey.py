@@ -24,11 +24,13 @@ class Monkey(Sprite):
 
     def init_element(self):
         # for debugging, draw a box around the monkey
-        x = self.x
-        y = self.y
-        w = self.image.width()
-        h = self.image.height()
-        self.canvas.create_rectangle(x-w/2,y-h/2,x+w/2,y+h/2,outline='black')
+        #x = self.x
+        #y = self.y
+        #w = self.image.width()
+        #h = self.image.height()
+        #self.canvas.create_rectangle(x-w/2,y-h/2,x+w/2,y+h/2,outline='black')
+        (xl,yl,xr,yr) = self.canvas.bbox(self.canvas_object_id)
+        self.canvas.create_rectangle(xl, yl, xr, yr, outline='grey')
 
     def __str__(self):
         return f"Monkey at (self.image.x,self.image.y)"

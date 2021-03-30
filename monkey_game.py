@@ -7,6 +7,7 @@ from gamelib import Sprite, GameApp, Text
 import banana  # for Banana class
 import monkey  # for Monkey class
 import building
+#import explosion
 
 CANVAS_WIDTH = 800
 CANVAS_HEIGHT = 500
@@ -49,7 +50,8 @@ class MonkeyGame(GameApp):
         self.add_element(self.monkey)
         self.add_element(self.enemy)
         self.textbox = Text(self, 
-                f"({self.banana.x:.0f},{self.banana.y:.0f})", 80, 40,
+                f"({self.banana.x:.0f},{self.banana.y:.0f})", 
+                70, 20,  # show text in upper left corner of canvas
                 fill="white",
                 justify=tk.LEFT,
                 font=font.Font(family="Monospace",size=18)
@@ -116,6 +118,10 @@ class MonkeyGame(GameApp):
             if not self.banana.is_moving:
                 self.banana.reset()
                 self.banana.start()
+#        elif event.keysym == "Return" or event.keysym == "KP_Enter":
+#            # test explosion
+#            bomb = explosion.Explosion(self, CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
+#            self.add_element(bomb)
 
     def animate(self):
         """Override GameApp.animate in order to check for collisions."""

@@ -32,7 +32,7 @@ class Building(GameCanvasElement):
         return id
 
     def contains(self, x, y):
-        return abs(x - self.x) < self.width/2 and self.y <= y <= self.y-self.height
+        return abs(x - self.x) < self.width/2 and self.y-self.height < y < self.y
 
     def render(self):
         pass

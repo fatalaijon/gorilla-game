@@ -103,12 +103,12 @@ class Sprite(GameCanvasElement):
     @property
     def height(self):
         """Return the height of the Sprite's image."""
-        return self.image.height()
+        return self.image.height() if self.image else 0
 
     @property
     def width(self):
         """Return the width of the Sprite's image."""
-        return self.image.width()
+        return self.image.width() if self.image else 0
 
 
 class GameApp(ttk.Frame): 

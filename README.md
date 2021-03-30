@@ -31,12 +31,14 @@ img2 = ImageTk.PhotoImage(image_data)
 documentation claims that `ImageTk.PhotoImage` is a 
 "Tkinter-compatible photo image."
 The `ImageTk.PhotoImage` constructor also accepts `file=` and `data=`
-parameters to initialize the phto image object.
+parameters to initialize the photo image object.
 
-It also has this method:
+It has a `paste(image)` method that we can use to change the image:
 ```
 paste(image)
-    Paste Image object into a PhotoImage. `image` must have the same dimensions.
+    Paste Image object into a PhotoImage. `image` must have the same dimensions
+    as the original image.
 ```
+This is how we make the banana appear to spin as it moves.
 
  
