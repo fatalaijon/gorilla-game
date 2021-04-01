@@ -65,8 +65,8 @@ class MonkeyGame(GameApp):
             # Updating banana is handled explicitly (drawn last).
 
         self.message_box = Text(self,
-                " "*20, 
-                120, 40,  # show text in upper left corner of canvas
+                " "*16, 
+                100, 40,  # show text in upper left corner of canvas
                 fill="white",
                 justify=tk.LEFT,  # but it doesn't work!
                 font=font.Font(family="Monospace",size=18)
