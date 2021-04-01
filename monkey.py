@@ -27,7 +27,7 @@ class Monkey(Sprite):
     def init_element(self):
         """For debugging, draw a box around the monkey."""
         if SHOW_BOUNDING_BOX:
-            (xl,yl,xr,yr) = self.canvas.bbox(self.canvas_object_id)
+            (xl, yl, xr, yr) = self.canvas.bbox(self.canvas_object_id)
             self.canvas.create_rectangle(xl, yl, xr, yr, outline='grey')
 
     def __str__(self):

@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as font
+import tkinter.constants as tk_constants
 import math
 
 from gamelib import Sprite, GameApp, Text
@@ -35,6 +36,10 @@ class MonkeyGame(GameApp):
         self.increase_angle(0)
         # handle mouse clicks
         self.parent.bind("<Button-1>", self.on_click)
+        # craters are the holes left by explosions
+        # keep track of them so that subsequent throws of a banana
+        # can pass through the hole.
+        self.craters = []
 
     def create_sprites(self):
         
@@ -47,8 +52,7 @@ class MonkeyGame(GameApp):
         # initial speed and angle of throw
         self.banana.angle = 60
         self.banana.speed = 20
-
-        self.add_element(self.banana)
+        # NOTE: banana is not a game element, don't add to elements.
         self.add_element(self.monkey)
         self.add_element(self.enemy)
         self.textbox = Text(self, 
@@ -117,14 +121,20 @@ class MonkeyGame(GameApp):
         elif event.keysym == "Down":
             self.increase_angle(-5)
         elif event.char == ' ':
+            # throw a banana
             if not self.banana.is_moving:
                 self.banana.reset()
                 self.banana.start()
 
     def on_click(self, event):
         """Handle mouse click event.  Create an explosion (for testing)."""
+        print(f"Click at ({event.x},{event.y})")
         x = event.x
         y = event.y
+        # Only create explosion if mouse clicked on canvas
+        if y < 0 or y > self.canvas.winfo_height():
+            print("Not on canvas")
+            return
         widget = self.canvas.winfo_containing(x,y)
         if widget:
             print(f"{widget} at ({x},{y})")
@@ -136,20 +146,39 @@ class MonkeyGame(GameApp):
         for element in self.elements:
             element.update()
             element.render()
+        # Update the banana last
+        self.banana.update()
+        self.banana.render()
         self.textbox.set_text(f"({self.banana.x:.0f},{self.banana.y:.0f})")
-        for element in self.elements:
-            if element is self.banana:
-                # banana can't hit itself
-                continue
-            if self.banana.hits(element):
-                print(f"Boom! banana hits {element}")
-                self.banana.stop()
-                bomb = explosion.Explosion(self, self.banana.x, self.banana.y)
-                self.add_element(bomb)
-                break
+        # Check if the banana hits something
+
+        # If banana "hits" a crater left by a previous explosion,
+        # it should pass through (nothing there).
+        if self.in_crater(self.banana):
+            # a hole left by an explosion
+            pass
+        else:
+            # Look for an intersecting game object
+            for element in self.elements:
+                if self.banana.hits(element):
+                    print(f"Boom! banana hits {element}")
+                    self.banana.stop()
+                    bomb = explosion.Explosion(self, self.banana.x, self.banana.y)
+                    self.add_element(bomb)
+                    # add it to the list of craters, too
+                    self.craters.append(bomb)
+                    break
         
         self.after(self.update_delay, self.animate)
 
+    def in_crater(self, element) -> bool:
+        """Test if element is inside a crater left by an explosion."""
+        for crater in self.craters:
+            # old explosions leave a hole that banana can pass threw
+            if crater.contains(element.x, element.y):
+                return True
+        return False
+    
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("Gorilla Game")
