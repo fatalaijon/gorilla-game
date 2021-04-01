@@ -1,8 +1,8 @@
 """
 Named constants for values that configure the game.
 """
-CANVAS_WIDTH = 800
-CANVAS_HEIGHT = 500
+CANVAS_WIDTH = 900
+CANVAS_HEIGHT = 600
 # Canvas background color.
 # Preferrably a dark color that does not appear in images of monkey, banana, 
 # or buildings.

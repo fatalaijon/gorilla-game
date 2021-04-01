@@ -3,6 +3,7 @@ from tkinter import ttk
 import tkinter.font as font
 import tkinter.constants as tk_constants
 import math
+from random import random, randint
 from typing import List, Tuple, Any
 
 from gamelib import Sprite, GameApp, Text
@@ -22,9 +23,15 @@ class MonkeyGame(GameApp):
         """This method is called by the superclass (GameApp) constructor
         to initialize game elements.
         """
-        self.create_sprites()
+        print("Canvas size:", 
+              f"{self.canvas['width']} x {self.canvas['height']}")
         self.init_control_panel()
         self.canvas['bg'] = config.CANVAS_COLOR
+        # buildings before gorillas
+        baseline = int(self.canvas['height'])
+        self.create_buildings(baseline)
+        self.create_sprites()
+        self.create_message_box()
         # handle mouse clicks
         self.parent.bind("<Button-1>", self.on_click)
         # craters are the holes left by explosions
@@ -64,6 +71,7 @@ class MonkeyGame(GameApp):
             # NOTE: Don't add banana to game elements.
             # Updating banana is handled explicitly (drawn last).
 
+    def create_message_box(self):
         self.message_box = Text(self,
                 " "*16, 
                 100, 40,  # show text in upper left corner of canvas
@@ -71,13 +79,20 @@ class MonkeyGame(GameApp):
                 justify=tk.LEFT,  # but it doesn't work!
                 font=font.Font(family="Monospace",size=18)
                 )
-        # y-coordinte of the baseline of building
-        baseline = 500
-        self.create_buildings(baseline)
 
     def create_buildings(self, baseline):
-        bldg = building.Building(self, 300, baseline, 120, 200, "red")
-        self.add_element(bldg)
+        bldg_colors = ["firebrick2", "cyan2", "gray75" ]
+        x = 0
+        while x < int(self.canvas['width']):
+            width = building.ROOM_WIDTH*randint(5,9)
+            # height not necessarily a multiple of floor height,
+            # so windows don't all line up
+            height = int((0.2+random())*int(self.canvas['height'])/2)
+            color = bldg_colors[randint(0,len(bldg_colors)-1)]
+            bldg = building.Building(self, x, baseline, width, height, color)
+            self.add_element(bldg)
+            x = x + width
+
 
     def init_control_panel(self):
         """Create a row for controls and text messages."""

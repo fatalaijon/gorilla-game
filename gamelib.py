@@ -41,7 +41,7 @@ class GameCanvasElement:
 
     def init_canvas_object(self) -> int:
         """Initialize a graphical object to show on self.canvas.
-        Your code must return the canvas_object_id.
+        This method must return the canvas_object_id of the object.
         """
         return 0
 
@@ -117,7 +117,7 @@ class Sprite(GameCanvasElement):
 
 
 class GameApp(ttk.Frame): 
-    def __init__(self, parent, canvas_width=800, canvas_height=500, update_delay=33):
+    def __init__(self, parent, canvas_width=800, canvas_height=600, update_delay=33):
         super().__init__(parent)
         self.parent = parent
         self.update_delay = update_delay
