@@ -1,3 +1,4 @@
+from collections import namedtuple
 from tkinter.constants import X
 from gamelib import Sprite
 
@@ -8,6 +9,7 @@ class Monkey(Sprite):
     """A monkey that can throw bananas"""
     def __init__(self, game_app, image_filename, x=0, y=0):
         super().__init__(game_app, image_filename, x, y)
+        self._name = "Monkey"
 
     def contains(self, x, y):
         """The point x,y is contained in the monkey's image if it
@@ -30,5 +32,13 @@ class Monkey(Sprite):
             (xl, yl, xr, yr) = self.canvas.bbox(self.canvas_object_id)
             self.canvas.create_rectangle(xl, yl, xr, yr, outline='grey')
 
+    @property
+    def name(self):
+        return self._name
+    
+    @name.setter
+    def name(self, value):
+        self._name = value
+        
     def __str__(self):
         return f"Monkey at (self.image.x,self.image.y)"

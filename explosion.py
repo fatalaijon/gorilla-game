@@ -14,7 +14,7 @@ class Explosion(GameCanvasElement):
     # Cludge!  canvas.itermconfigure(id, fill=color, outline=color)
     # throws exception if I specify colors as hex strings, e.g. 'xff0000' for red.
     # As a work-around, specify colors by name for each step 0..STEPS
-    COLORS = ['yellow','orange red','red', 'red', 'red2','red3',
+    COLORS = ['yellow', 'yellow', 'orange red','red', 'red', 'red2','red3',
               'sienna3','sienna4','brown4','saddle brown']
     def __init__(self, game_app, x=0, y=0):
         """Create an explosion centered at x, y."""
@@ -127,6 +127,10 @@ class Explosion(GameCanvasElement):
         the default render in GameCanvasElement.
         """
         pass
+
+    def is_exploding(self):
+        """Test if the explosion is still occurring."""
+        return self.step < 2*Explosion.STEPS
 
     def __str__(self):
         return f"Explosion at (self.image.x,self.image.y)"

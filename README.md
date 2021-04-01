@@ -11,6 +11,10 @@ In `gamelib.GameApp`:
 * `create_canvas()` returns the canvas reference instead of setting `self.canvas`.
 * add methods `add_element(element)` and `remove_element(element)` so subclasses don't need to directly modify the elements attribute
 * `contains(x, y)` returns True if a game element contains point (x,y). This method is needed to detect collision between banana and a game element.
+* `start()` sets a reference to the id returned by `after` so animation can be cancelled.
+* `stop()` new method to stop animation using the timer id
+* `running()` test if the animation loop is running
+* `self.timer_id` new attribute to keep track of timer id
 
 In `gamelib.GameCanvasElement` 
 * method `init_canvas_object()` must return the object id (int).  This fixes warnings from VSCode about unknown symbol `self.canvas_object_id`, and avoids depending on a side-effect.

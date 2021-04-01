@@ -15,10 +15,10 @@ class GameCanvasElement:
     def __init__(self, game_app, x=0, y=0):
         self.x = x
         self.y = y
+        # Modified: save reference to game_app instead of game_app.canvas
         self.app = game_app
 
         self.is_visible = True
-
         self.canvas_object_id = self.init_canvas_object()
         self.init_element()
 
@@ -127,10 +127,12 @@ class GameApp(ttk.Frame):
 
         self.grid(sticky=tk.NSEW)
         self.canvas = self.create_canvas(canvas_width, canvas_height)
-
+        # The timer_id keeps a reference to the animation timer.
+        # It is empty string if timer is stopped.
+        self.timer_id = ""
         self.elements = []
         self.init_game()
-
+        # bind callback for event handlers
         self.parent.bind('<KeyPress>', self.on_key_pressed)
         self.parent.bind('<KeyRelease>', self.on_key_released)
         
@@ -158,15 +160,29 @@ class GameApp(ttk.Frame):
         """Animate each element on the canvas.
         
         A subclass may override this to provide it's own animation.
+        A subclass should be careful to set self.timer_id to the value
+        returned by animate().
         """
         for element in self.elements:
             element.update()
             element.render()
 
-        self.after(self.update_delay, self.animate)
+        self.timer_id = self.after(self.update_delay, self.animate)
 
     def start(self):
-        self.after(0, self.animate)
+        """Start the animation loop if not already running."""
+        if not self.timer_id:
+            self.timer_id = self.after(0, self.animate)
+
+    def stop(self):
+        """Stop the animation loop."""
+        if self.timer_id:
+            self.after_cancel(self.timer_id)
+            self.timer_id = ""
+
+    def running(self) -> bool:
+        """Return True if animation is running, False otherwise."""
+        return self.timer_id != ""
 
     def init_game(self):
         pass

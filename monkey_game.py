@@ -3,21 +3,15 @@ from tkinter import ttk
 import tkinter.font as font
 import tkinter.constants as tk_constants
 import math
+from typing import List, Tuple, Any
 
 from gamelib import Sprite, GameApp, Text
-import banana  # for Banana class
+from banana import Banana  # for Banana class
 import monkey  # for Monkey class
 import building
 import explosion
 
-CANVAS_WIDTH = 800
-CANVAS_HEIGHT = 500
-# use a color that does not appear in the images for monkey or banana
-CANVAS_COLOR = "medium blue"
-
-UPDATE_DELAY = 60  # 33
-GRAVITY = 1
-
+import game_constants as config
 
 class MonkeyGame(GameApp):
     """The main class for the Monkey game consists of a canvas
@@ -30,36 +24,51 @@ class MonkeyGame(GameApp):
         """
         self.create_sprites()
         self.init_control_panel()
-        self.canvas['bg'] = CANVAS_COLOR
-        # call the update methods so that the actual speed/angle are shown on labels
-        self.increase_speed(0)
-        self.increase_angle(0)
+        self.canvas['bg'] = config.CANVAS_COLOR
         # handle mouse clicks
         self.parent.bind("<Button-1>", self.on_click)
         # craters are the holes left by explosions
         # keep track of them so that subsequent throws of a banana
         # can pass through the hole.
         self.craters = []
+        # Set the player to take a turn
+        self.monkey = None
+        self.next_player()
+
 
     def create_sprites(self):
+        # save the gorillas in an array so we can easily switch references
+        self.players: List[Any] = [
+                (monkey.Monkey(self, 'images/monkey.png', 100, 450), None),
+                (monkey.Monkey(self, 'images/monkey.png', 700, 450), None)
+                ]
+        # Each gorilla (monkey) gets a reusable banana to throw.
+        # Reuse the same banana so it remembers it's initial speed and angle.
         
-        self.monkey = monkey.Monkey(self, 'images/monkey.png', 100, 450)
-        self.enemy = monkey.Monkey(self, 'images/monkey.png', 700, 450)
-        # Monkey 1 throws the banana, so banana starts above monkey's head
-        mx = self.monkey.x
-        my = self.monkey.y - self.monkey.height/2 - 10 # 10 pixels above monkey
-        self.banana = banana.Banana(self, 'images/banana.png', mx, my)
-        # initial speed and angle of throw
-        self.banana.angle = 60
-        self.banana.speed = 20
-        # NOTE: banana is not a game element, don't add to elements.
-        self.add_element(self.monkey)
-        self.add_element(self.enemy)
-        self.textbox = Text(self, 
-                f"({self.banana.x:.0f},{self.banana.y:.0f})", 
-                80, 40,  # show text in upper left corner of canvas
+        for k in (0,1):
+            # The initial position of each banana is above the gorilla's head
+            player = self.players[k][0]
+            player.name = f"Gorilla {k+1}"
+            mx = player.x
+            my = player.y - player.height/2 - 10  # 10 pixels above monkey
+            mybanana = Banana(self, 'images/banana.png', mx, my)
+            # initial speed and angle of throw
+            mybanana.angle = 60
+            mybanana.speed = 20
+            # player 1 throws banana to the left
+            if k == 1: mybanana.set_x_axis(tk.LEFT)
+            # replace player with tuple (monkey,banana)
+            self.players[k] = (player, mybanana)
+            # Also add each gorilla to collection of game elements
+            self.add_element(player)
+            # NOTE: Don't add banana to game elements.
+            # Updating banana is handled explicitly (drawn last).
+
+        self.message_box = Text(self,
+                " "*20, 
+                120, 40,  # show text in upper left corner of canvas
                 fill="white",
-                justify=tk.LEFT,
+                justify=tk.LEFT,  # but it doesn't work!
                 font=font.Font(family="Monospace",size=18)
                 )
         # y-coordinte of the baseline of building
@@ -72,13 +81,18 @@ class MonkeyGame(GameApp):
 
     def init_control_panel(self):
         """Create a row for controls and text messages."""
+        textfont = font.Font(family="Arial", size=16, weight=font.NORMAL)
         controls = ttk.Frame(self, name="controls", borderwidth=4, padding=5) 
         controls.grid(row=1, column=0)
-        self.speed_text = tk.Label(controls, text="Speed: XX")
+        self.speed_text = tk.Label(controls, text="S peed: XX")
         self.speed_text.grid(row=0, column=0)
-        self.buttonMinus = tk.Button(controls, text="-", command=lambda : self.increase_speed(-1))
+        self.buttonMinus = tk.Button(controls, text="-", 
+                command=lambda : self.increase_speed(-1)
+                )
         self.buttonMinus.grid(row=0, column=1)
-        self.buttonPlus = tk.Button(controls, text="+", command=lambda : self.increase_speed(1))
+        self.buttonPlus = tk.Button(controls, text="+",
+                command=lambda : self.increase_speed(1)
+                )
         self.buttonPlus.grid(row=0, column=2)
         # leave some space
         tk.Label(controls, text="  ").grid(row=0, column=3)
@@ -86,13 +100,17 @@ class MonkeyGame(GameApp):
         self.angle_text = tk.Label(controls, text="Angle:  0")
         self.angle_text.grid(row=0, column=4)
         # up arrow \u2191, down arrow \u2193, triple up \u290A, triple down \u290B
-        self.angleDown = tk.Button(controls, text="\u290B", command=lambda: self.increase_angle(-5))
+        self.angleDown = tk.Button(controls, text="\u290B",
+                command=lambda: self.increase_angle(-5)
+                )
         self.angleDown.grid(row=0, column=5)
-        self.angleUp = tk.Button(controls, text="\u290A", command=lambda : self.increase_angle(5))
+        self.angleUp = tk.Button(controls, text="\u290A",
+                command=lambda : self.increase_angle(5)
+                )
         self.angleUp.grid(row=0, column=6)        
         # add some padding to all components
-        fnt = font.Font(family="Monospace", weight=font.NORMAL, size=14)
         for component in controls.winfo_children():
+            component['font'] = textfont
             component.grid_configure(padx=5, pady=3)
 
     def increase_speed(self, amount):
@@ -125,6 +143,8 @@ class MonkeyGame(GameApp):
             if not self.banana.is_moving:
                 self.banana.reset()
                 self.banana.start()
+            # start the animation
+            self.start()
 
     def on_click(self, event):
         """Handle mouse click event.  Create an explosion (for testing)."""
@@ -142,14 +162,14 @@ class MonkeyGame(GameApp):
         self.add_element(bomb)
 
     def animate(self):
-        """Override GameApp.animate in order to check for collisions."""
+        """Override GameApp.animate in order to check for collisions and start/stop animation."""
         for element in self.elements:
             element.update()
             element.render()
         # Update the banana last
         self.banana.update()
         self.banana.render()
-        self.textbox.set_text(f"({self.banana.x:.0f},{self.banana.y:.0f})")
+        
         # Check if the banana hits something
 
         # If banana "hits" a crater left by a previous explosion,
@@ -169,7 +189,22 @@ class MonkeyGame(GameApp):
                     self.craters.append(bomb)
                     break
         
-        self.after(self.update_delay, self.animate)
+        if self.banana.is_moving:
+            self.message_box.set_text(f"({self.banana.x:.0f},{self.banana.y:.0f})")   
+
+        # Stop the animation when a) banana not moving AND b) bomb not exploding
+        if self.banana.is_moving or any([crater.is_exploding() for crater in self.craters]):
+            # keep animating
+            pass
+        else:
+            self.stop()
+
+        if self.running():
+            self.timer_id = self.after(self.update_delay, self.animate)
+        else:
+            # next player's turn
+            self.next_player()
+        
 
     def in_crater(self, element) -> bool:
         """Test if element is inside a crater left by an explosion."""
@@ -179,12 +214,24 @@ class MonkeyGame(GameApp):
                 return True
         return False
     
+    def next_player(self):
+        """Select the next player to take turn. This sets self.monkey,
+        self.banana, and updates controls as side effect.
+        """
+        index = 1 if self.monkey == self.players[0][0] else 0
+        (self.monkey, self.banana) = self.players[index]
+        # call the update methods so that the actual speed/angle 
+        # of the banana are shown
+        self.increase_speed(0)
+        self.increase_angle(0)
+        self.message_box.set_text(f"{self.monkey.name} turn")
+
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("Gorilla Game")
  
     # do not allow window resizing
     root.resizable(False, False)
-    app = MonkeyGame(root, CANVAS_WIDTH, CANVAS_HEIGHT, UPDATE_DELAY)
-    app.start()
+    app = MonkeyGame(root, config.CANVAS_WIDTH, config.CANVAS_HEIGHT, config.UPDATE_DELAY)
+    #app.start()      # this calls animate
     root.mainloop()

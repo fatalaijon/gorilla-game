@@ -1,8 +1,8 @@
 import tkinter as tk
 import math
 from gamelib import Sprite
-from monkey_game import CANVAS_WIDTH, CANVAS_HEIGHT, GRAVITY
-from util import trace
+from game_constants import CANVAS_WIDTH, CANVAS_HEIGHT, GRAVITY
+
 
 class Banana(Sprite):
     """A banana that can be thrown at a player.  
@@ -19,6 +19,8 @@ class Banana(Sprite):
 
     def __init__(self, game_app, image_filename, x=0, y=0):
         super().__init__(game_app, image_filename, x, y)
+        # orientation of the x-axis. 1 = increase to right, -1 = increase to left
+        self.x_axis = 1
         # create images for a spinning banana, by rotating existing image
         from PIL import Image
         image = Image.open(image_filename)
@@ -44,7 +46,7 @@ class Banana(Sprite):
     
     @property
     def speed(self):
-        """Get the initial speed"""
+        """Get the initial speed of banana toss."""
         return self._speed
     
     @speed.setter
@@ -58,13 +60,30 @@ class Banana(Sprite):
     
     @property
     def angle(self):
-        """Get the initial angle in degrees. 0 is horizontal."""
+        """Get the angle of banana toss in degrees. 0 is horizontal."""
         return self._angle
     
     @angle.setter
     def angle(self, degrees):
-        """Set the initial angle in degrees above horizontal."""
+        """Set the angle of banana toss in degrees above horizontal."""
         self._angle = degrees
+
+    def set_x_axis(self, direction):
+        """Set the orientation of the x-axis.  This determines the
+        direction of initial x-velocity of banana toss, given the angle.
+        If angle = 45 (degrees) and direction==1 then banana is tossed
+        to the right. If direction==-1 then banana is tossed to the left.
+
+        direction = +1 if x-axis increases to the right, -1 if increases to left.
+        """
+        if direction == tk.LEFT:
+            self.x_axis = -1
+        elif direction == tk.RIGHT:
+            self.x_axis = 1
+        elif direction == 1 or direction == -1:
+            self.x_axis = direction
+        else:
+            raise ValueError("direction must be 1 (tk.RIGHT) or -1 (tk.LEFT)")
 
     def update(self):
         if self.is_moving:
@@ -94,7 +113,7 @@ class Banana(Sprite):
         self.show()
         self.is_moving = True
         angle = math.radians(self._angle)
-        self.vx = math.cos(angle)*self._speed
+        self.vx = math.cos(angle)*self._speed*self.x_axis
         self.vy = math.sin(angle)*self._speed
 
     def stop(self):
