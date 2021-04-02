@@ -1,5 +1,4 @@
-from collections import namedtuple
-from tkinter.constants import X
+import tkinter as tk
 from gamelib import Sprite
 
 # show the bounding box around monkey image, for development
@@ -10,6 +9,15 @@ class Monkey(Sprite):
     def __init__(self, game_app, image_filename, x=0, y=0):
         super().__init__(game_app, image_filename, x, y)
         self._name = "Monkey"
+        # Adjust y for height of image so that y is at bottom of image
+
+    def init_element(self):
+        self.canvas.itemconfigure(self.canvas_object_id,
+                    anchor=tk.S
+                    )
+        if SHOW_BOUNDING_BOX:
+            (xl, yl, xr, yr) = self.canvas.bbox(self.canvas_object_id)
+            self.canvas.create_rectangle(xl, yl, xr, yr, outline='grey')
 
     def contains(self, x, y):
         """The point x,y is contained in the monkey's image if it
@@ -17,6 +25,8 @@ class Monkey(Sprite):
         """
         w = self.width
         h = self.height
+        # TODO better to use canvas.bbox(self.canvas_object_id)
+        # than relying on our own notion of object location.
         dx = abs(x - self.x)
         dy = abs(y - self.y)
         if dx > w/2: return False
@@ -25,12 +35,6 @@ class Monkey(Sprite):
         # This is empty space not occupied by the monkey
         if dx > w/4 and dy > h/4: return False
         return True
-
-    def init_element(self):
-        """For debugging, draw a box around the monkey."""
-        if SHOW_BOUNDING_BOX:
-            (xl, yl, xr, yr) = self.canvas.bbox(self.canvas_object_id)
-            self.canvas.create_rectangle(xl, yl, xr, yr, outline='grey')
 
     @property
     def name(self):

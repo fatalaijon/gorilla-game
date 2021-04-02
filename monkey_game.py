@@ -8,11 +8,12 @@ from typing import List, Tuple, Any
 
 from gamelib import Sprite, GameApp, Text
 from banana import Banana  # for Banana class
-import monkey  # for Monkey class
-import building
+from building import Building, BuildingFactory
+import game_constants as config
+# avoid circular imports
+import monkey
 import explosion
 
-import game_constants as config
 
 class MonkeyGame(GameApp):
     """The main class for the Monkey game consists of a canvas
@@ -27,9 +28,9 @@ class MonkeyGame(GameApp):
               f"{self.canvas['width']} x {self.canvas['height']}")
         self.init_control_panel()
         self.canvas['bg'] = config.CANVAS_COLOR
-        # buildings before gorillas
-        baseline = int(self.canvas['height'])
-        self.create_buildings(baseline)
+        # draw buildings before gorillas   
+        self.buildings = BuildingFactory.create_buildings(self.canvas)
+        for bldg in self.buildings:  self.add_element(bldg)
         self.create_sprites()
         self.create_message_box()
         # handle mouse clicks
@@ -42,30 +43,35 @@ class MonkeyGame(GameApp):
         self.monkey = None
         self.next_player()
 
-
     def create_sprites(self):
         # save the gorillas in an array so we can easily switch references
-        self.players: List[Any] = [
-                (monkey.Monkey(self, 'images/monkey.png', 100, 450), None),
-                (monkey.Monkey(self, 'images/monkey.png', 700, 450), None)
-                ]
+        self.players = []
         # Each gorilla (monkey) gets a reusable banana to throw.
         # Reuse the same banana so it remembers it's initial speed and angle.
-        
+        center_building = len(self.buildings)//2
         for k in (0,1):
+            # Randomly choose a building to stand on, such that player 0 is on
+            # left and player 1 is on right.  Assumes buildings order left to right.
+            if k == 0:
+                bldg_number = randint(0, center_building-1)
+            else:
+                bldg_number = randint(center_building+1, len(self.buildings))
+            building = self.buildings[bldg_number]
+            player_x = building.x + building.width//2
+            player_y = building.top
             # The initial position of each banana is above the gorilla's head
-            player = self.players[k][0]
+            player = monkey.Monkey(self, 'images/monkey.png', player_x, player_y)
             player.name = f"Gorilla {k+1}"
-            mx = player.x
-            my = player.y - player.height/2 - 10  # 10 pixels above monkey
-            mybanana = Banana(self, 'images/banana.png', mx, my)
+            bx = player.x
+            by = player.y - player.height/2 - 10  # 10 pixels above monkey
+            mybanana = Banana(self, 'images/banana.png', bx, by)
             # initial speed and angle of throw
             mybanana.angle = 60
             mybanana.speed = 20
-            # player 1 throws banana to the left
+            # player 1 throws banana to the left, player 0 throws to right (the default)
             if k == 1: mybanana.set_x_axis(tk.LEFT)
-            # replace player with tuple (monkey,banana)
-            self.players[k] = (player, mybanana)
+            # save each monkey and his banana as a tuple
+            self.players.append((player, mybanana))
             # Also add each gorilla to collection of game elements
             self.add_element(player)
             # NOTE: Don't add banana to game elements.
@@ -80,18 +86,6 @@ class MonkeyGame(GameApp):
                 font=font.Font(family="Monospace",size=18)
                 )
 
-    def create_buildings(self, baseline):
-        bldg_colors = ["firebrick2", "cyan2", "gray75" ]
-        x = 0
-        while x < int(self.canvas['width']):
-            width = building.ROOM_WIDTH*randint(5,9)
-            # height not necessarily a multiple of floor height,
-            # so windows don't all line up
-            height = int((0.2+random())*int(self.canvas['height'])/2)
-            color = bldg_colors[randint(0,len(bldg_colors)-1)]
-            bldg = building.Building(self, x, baseline, width, height, color)
-            self.add_element(bldg)
-            x = x + width
 
 
     def init_control_panel(self):

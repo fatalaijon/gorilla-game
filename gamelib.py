@@ -22,6 +22,18 @@ class GameCanvasElement:
         self.canvas_object_id = self.init_canvas_object()
         self.init_element()
 
+    def init_canvas_object(self) -> int:
+        """Initialize a graphical object to show on self.canvas.
+        This method must return the canvas_object_id of the object.
+        """
+        return 0
+
+    def init_element(self):
+        """Initialize the state of the element.
+        Use this method for things other than creating the canvas object.
+        """
+        pass
+
     @property
     def canvas(self):
         """Return a reference to the game app's canvas."""
@@ -39,17 +51,6 @@ class GameCanvasElement:
         if self.is_visible:
             self.canvas.coords(self.canvas_object_id, self.x, self.y)
 
-    def init_canvas_object(self) -> int:
-        """Initialize a graphical object to show on self.canvas.
-        This method must return the canvas_object_id of the object.
-        """
-        return 0
-
-    def init_element(self):
-        """Initialize the state of the element.
-        Use this method for things other than creating the canvas object.
-        """
-        pass
 
     def update(self):
         pass
@@ -117,8 +118,8 @@ class Sprite(GameCanvasElement):
 
 
 class GameApp(ttk.Frame): 
-    def __init__(self, parent, canvas_width=800, canvas_height=600, update_delay=33):
-        super().__init__(parent)
+    def __init__(self, parent, canvas_width, canvas_height, update_delay=33):
+        super().__init__(parent, width=canvas_width)
         self.parent = parent
         self.update_delay = update_delay
         # row 0 is the canvas, row 1 for controls and text
