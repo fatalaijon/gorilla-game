@@ -38,6 +38,7 @@ class BuildingFactory:
             # so windows don't all line up
             height = int( (0.4+random())*canvas_height/2 )
             color = bldg_colors[randint(0,len(bldg_colors)-1)]
+            # cludge: don't use same color more than twice together
             bldg = Building(canvas, x, baseline, width, height, color)
             x = x + width
             buildings.append(bldg)

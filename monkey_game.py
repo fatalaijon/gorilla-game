@@ -1,14 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as font
-import tkinter.constants as tk_constants
-import math
-from random import random, randint
-from typing import List, Tuple, Any
+from random import randint
 
 from gamelib import Sprite, GameApp, Text
-from banana import Banana  # for Banana class
-from building import Building, BuildingFactory
+from banana import Banana
+from building import BuildingFactory
 import game_constants as config
 # avoid circular imports
 import monkey
@@ -17,7 +14,7 @@ import explosion
 
 class MonkeyGame(GameApp):
     """The main class for the Monkey game consists of a canvas
-    with some game elements, e.g. monkeys, buildings, and a banana.
+    with some game elements, e.g. monkeys, buildings, and a banana or two.
     """
 
     def init_game(self):
@@ -63,16 +60,13 @@ class MonkeyGame(GameApp):
             player = monkey.Monkey(self, 'images/monkey.png', player_x, player_y)
             player.name = f"Gorilla {k+1}"
             bx = player.x
-            by = player.y - player.height/2 - 10  # 10 pixels above monkey
+            by = player.y - player.height - 10  # 10 pixels above monkey
             mybanana = Banana(self, 'images/banana.png', bx, by)
-            # initial speed and angle of throw
-            mybanana.angle = 60
-            mybanana.speed = 20
             # player 1 throws banana to the left, player 0 throws to right (the default)
             if k == 1: mybanana.set_x_axis(tk.LEFT)
             # save each monkey and his banana as a tuple
             self.players.append((player, mybanana))
-            # Also add each gorilla to collection of game elements
+            # Also add each gorilla to the collection of game elements
             self.add_element(player)
             # NOTE: Don't add banana to game elements.
             # Updating banana is handled explicitly (drawn last).
@@ -85,8 +79,6 @@ class MonkeyGame(GameApp):
                 justify=tk.LEFT,  # but it doesn't work!
                 font=font.Font(family="Monospace",size=18)
                 )
-
-
 
     def init_control_panel(self):
         """Create a row for controls and text messages."""
@@ -188,15 +180,17 @@ class MonkeyGame(GameApp):
             pass
         else:
             # Look for an intersecting game object
+            hit = False
             for element in self.elements:
                 if self.banana.hits(element):
                     print(f"Boom! banana hits {element}")
-                    self.banana.stop()
-                    bomb = explosion.Explosion(self, self.banana.x, self.banana.y)
-                    self.add_element(bomb)
-                    # add it to the list of craters, too
-                    self.craters.append(bomb)
-                    break
+                    hit = True  # don't break, check for more collisions
+            if hit:
+                self.banana.stop()
+                bomb = explosion.Explosion(self, self.banana.x, self.banana.y)
+                self.add_element(bomb)
+                # add it to the list of craters, too
+                self.craters.append(bomb)
         
         if self.banana.is_moving:
             self.message_box.set_text(f"({self.banana.x:.0f},{self.banana.y:.0f})")   

@@ -25,14 +25,15 @@ class Monkey(Sprite):
         """
         w = self.width
         h = self.height
-        # TODO better to use canvas.bbox(self.canvas_object_id)
-        # than relying on our own notion of object location.
-        dx = abs(x - self.x)
-        dy = abs(y - self.y)
+        # More reliable to use canvas.bbox(self.canvas_object_id)
+        # instead of relying on our own notion of image location.
+        (xl, yl, xr, yr) = self.canvas.bbox(self.canvas_object_id)
+        dx = abs(x - (xl+xr)/2)
+        dy = abs(y - (yl+yr)/2)
         if dx > w/2: return False
         if dy > h/2: return False
         # Exclude the 4 corners of bounding box of the image
-        # This is empty space not occupied by the monkey
+        # This is empty space not occupied by the monkey image
         if dx > w/4 and dy > h/4: return False
         return True
 
@@ -45,4 +46,4 @@ class Monkey(Sprite):
         self._name = value
         
     def __str__(self):
-        return f"Monkey at (self.image.x,self.image.y)"
+        return f"Monkey at ({self.x},{self.y})"

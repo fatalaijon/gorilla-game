@@ -21,6 +21,9 @@ class Banana(Sprite):
         super().__init__(game_app, image_filename, x, y)
         # orientation of the x-axis. 1 = increase to right, -1 = increase to left
         self.x_axis = 1
+        # initial speed and angle of a throw
+        self.angle = 45
+        self.speed = 20
         # create images for a spinning banana, by rotating existing image
         from PIL import Image
         image = Image.open(image_filename)
