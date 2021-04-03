@@ -45,6 +45,7 @@ For a better implementation of PhotoImage:
 from PIL import ImageTk, Image
 
 img1 = ImageTk.PhotoImage(Image.open('myimage.png'))
+# or pass image data to constructor:
 img2 = ImageTk.PhotoImage(image_data)
 ```
 documentation claims that `ImageTk.PhotoImage` is a 
@@ -52,12 +53,25 @@ documentation claims that `ImageTk.PhotoImage` is a
 The `ImageTk.PhotoImage` constructor also accepts `file=` and `data=`
 parameters to initialize the photo image object.
 
-It has a `paste(image)` method that we can use to change the image:
+The `PIL.Image` class has a method to rotate an image.
+We can use this to create rotated bananas for animation:
+```python
+image = Image.open("images/banana.png")
+# an array to store images
+self.images = [image]
+# add rotated version of the original image
+for angle in range(45,360,45):
+     self.images.append( image.rotate(angle) )
+```
+
+Then use the `paste(image)` method of ImageTk.PhotoImage to change the image:
 ```
 paste(image)
     Paste Image object into a PhotoImage. `image` must have the same dimensions
     as the original image.
 ```
-This is how we make the banana appear to spin as it moves.
+
+While the banana is moving, in the `update` method "paste" the next image
+from the sequence.  This makes the banana appear to spin as it moves.
 
  
