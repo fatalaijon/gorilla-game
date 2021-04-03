@@ -1,8 +1,19 @@
 ## Gorilla Game
 
-A re-implementation of the classic Basic Gorilla game.
+A Python re-implementation of the classic Basic Gorilla game.
 
-*Because students shouldn't have all the fun.*
+![game screenshot](images/gorilla-game.png)
+
+## How to Run
+
+```shell
+python3 monkey_game.py
+```
+Use Up/Down arrow keys to change the angle of banana toss, +/- keys to change the speed of banana toss. Press SPACE to toss a banana.
+
+The game remembers each player's previously selected banana speed and angle.
+
+Some features, like "game over" still under development.
 
 ## Changes to Starter Code
 
