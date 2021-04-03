@@ -6,10 +6,10 @@ from random import randint
 from gamelib import Sprite, GameApp, Text
 from banana import Banana
 from building import BuildingFactory
+from explosion import Explosion
 import game_constants as config
 # avoid circular imports
 import monkey
-import explosion
 
 
 class MonkeyGame(GameApp):
@@ -52,7 +52,7 @@ class MonkeyGame(GameApp):
             if k == 0:
                 bldg_number = randint(0, center_building-1)
             else:
-                bldg_number = randint(center_building+1, len(self.buildings))
+                bldg_number = randint(center_building+1, len(self.buildings)-1)
             building = self.buildings[bldg_number]
             player_x = building.x + building.width//2
             player_y = building.top
@@ -150,17 +150,6 @@ class MonkeyGame(GameApp):
     def on_click(self, event):
         """Handle mouse click event.  Create an explosion (for testing)."""
         print(f"Click at ({event.x},{event.y})")
-        x = event.x
-        y = event.y
-        # Only create explosion if mouse clicked on canvas
-        if y < 0 or y > self.canvas.winfo_height():
-            print("Not on canvas")
-            return
-        widget = self.canvas.winfo_containing(x,y)
-        if widget:
-            print(f"{widget} at ({x},{y})")
-        bomb = explosion.Explosion(self, x, y)
-        self.add_element(bomb)
 
     def animate(self):
         """Override GameApp.animate in order to check for collisions and start/stop animation."""
@@ -187,7 +176,7 @@ class MonkeyGame(GameApp):
                     hit = True  # don't break, check for more collisions
             if hit:
                 self.banana.stop()
-                bomb = explosion.Explosion(self, self.banana.x, self.banana.y)
+                bomb = Explosion(self, self.banana.x, self.banana.y)
                 self.add_element(bomb)
                 # add it to the list of craters, too
                 self.craters.append(bomb)

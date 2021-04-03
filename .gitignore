@@ -1,2 +1,6 @@
 __pycache__
 .vscode
+.idea
+# virtual environment directories
+.env
+.venv

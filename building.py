@@ -3,14 +3,17 @@ import tkinter as tk
 from random import random, randint
 
 # Probability lights are on in a room in a building
-PROB_LIGHTS = 0.8
+PROB_LIGHT_ON = 0.8
 LIGHT_WINDOW = "yellow2"
 DARK_WINDOW = "gray40"
-# Total guess as to height/width of windows, rooms, and floors
+# Arbitrary guess as to height/width of windows, rooms, and floors
 WIN_HEIGHT = 16
 WIN_WIDTH = int(0.5*WIN_HEIGHT)
 FLOOR_HEIGHT = 2*WIN_HEIGHT
 ROOM_WIDTH = 2*WIN_WIDTH
+# minimum number of rooms (windows) per building. Must be wide enough for gorilla to stand on.
+MIN_ROOMS = 5
+MAX_ROOMS = 9
 
 class BuildingFactory:
     """Factory for buildings, of course."""
@@ -28,21 +31,40 @@ class BuildingFactory:
         canvas_width = int(canvas['width'])
         canvas_height = int(canvas['height'])
         baseline = canvas_height
-        # random colors for buildings
-        bldg_colors = ["firebrick2", "cyan3", "gray80" ]
+        min_bldg_width = MIN_ROOMS*ROOM_WIDTH
         x = 0
         buildings = []
         while x < canvas_width:
-            width = ROOM_WIDTH*randint(5,9)
-            # height not necessarily a multiple of floor height,
-            # so windows don't all line up
+            width = ROOM_WIDTH*randint(MIN_ROOMS,MAX_ROOMS) + randint(0, WIN_WIDTH)
+            # fill the width of canvas with complete buildings
+            if x + width + min_bldg_width > canvas_width:
+                # expand to fill remaining space
+                width = canvas_width - x
+            # building height not necessarily a multiple of floor height,
+            # so the windows don't all line up
             height = int( (0.4+random())*canvas_height/2 )
-            color = bldg_colors[randint(0,len(bldg_colors)-1)]
-            # cludge: don't use same color more than twice together
+            color = BuildingFactory.choose_color(buildings)
             bldg = Building(canvas, x, baseline, width, height, color)
             x = x + width
             buildings.append(bldg)
         return buildings
+
+    @classmethod
+    def choose_color(cls, buildings):
+        """Choose a random color for the next building to draw,
+        but avoid too many consecutive buildings of same color.
+        """
+        # random colors for buildings
+        bldg_colors = ["firebrick3", "cyan3", "gray80", "light slate gray", "navajo white" ]
+        n = len(buildings) - 1
+        color = bldg_colors[randint(0, len(bldg_colors) - 1)]
+        # testing: use all colors
+        color = bldg_colors[n % len(bldg_colors)]
+        if n >= 1 and color == buildings[n].color and color == buildings[n-1].color:
+            # Boring. Too many buildings of same color.
+            return BuildingFactory.choose_color(buildings)
+        return color
+
 
 class Building(GameCanvasElement):
     """A building shown on the canvas.
@@ -77,21 +99,21 @@ class Building(GameCanvasElement):
         return self.y - self.height
 
     def init_canvas_object(self):
-        # right edge of building
-        xr = self.x + self.width
+        xright = self.x + self.width
         ytop = self.y - self.height # coordinate system increases downward
 
-        id = self.canvas.create_rectangle(self.x, self.y, xr, ytop, fill=self.color)
+        id = self.canvas.create_rectangle(self.x, self.y, xright, ytop, fill=self.color)
         self.make_windows(self.x, ytop)
         # return the object_id
         return id
 
-    def make_windows(self, xleft, ytop):    
+    def make_windows(self, xleft, ytop):
+        """Draw windows in the building."""
         # How many floors can we fit only building?
         nfloors = self.height//FLOOR_HEIGHT
         # How many rooms per floor? (horizontal)
         nrooms = (self.width - WIN_WIDTH//2)//ROOM_WIDTH
-        # In the original QBasic Gorilla game floors are aligned
+        # In the original QBasic Gorilla game, the windows are aligned
         # starting from top of building, with excess space at the bottom
         for row in range(0,nfloors):
             # y coord of top edge of windows on this floor
@@ -100,7 +122,7 @@ class Building(GameCanvasElement):
             for col in range(0, nrooms):
                 x = xleft + WIN_WIDTH + col*ROOM_WIDTH 
                 # randomly choose lights on (LIGHT_WINDOW) or off (DARK_WINDOW)
-                color = LIGHT_WINDOW if random() < PROB_LIGHTS else DARK_WINDOW
+                color = LIGHT_WINDOW if random() < PROB_LIGHT_ON else DARK_WINDOW
                 # draw the window
                 self.canvas.create_rectangle(x, y, 
                                              x+WIN_WIDTH, y+WIN_HEIGHT, 

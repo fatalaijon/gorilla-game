@@ -16,20 +16,18 @@ class Explosion(GameCanvasElement):
     # As a work-around, specify colors by name for each step 0..STEPS
     COLORS = ['yellow', 'yellow', 'orange red','red', 'red', 'red2','red3',
               'sienna3','sienna4','brown4','saddle brown']
+
     def __init__(self, game_app, x=0, y=0):
         """Create an explosion centered at x, y."""
         self.radius = Explosion.EXPANSION_RATE
         self.step = 0
         # super constructor will call-back to init_canvas_object
         super().__init__(game_app, x, y)
-        print("STEPS", Explosion.STEPS)
-        print("EXPANSION_RATE", Explosion.EXPANSION_RATE)
-
 
     def contains(self, x, y):
         """Test if (x,y) is contained in the explosion.
         This is used so bananas can pass through the holes left
-        by previous explostions.
+        by previous explosions.
         """
         r = math.hypot(x - self.x, y - self.y)
         return r <= self.radius
