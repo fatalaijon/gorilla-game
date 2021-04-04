@@ -31,12 +31,8 @@ class MonkeyGame(GameApp):
         self.clear_canvas()
         self.init_control_panel()
         self.init_game_objects()
-
-        # handle mouse clicks
+        # handle mouse clicks (not actually used now)
         self.parent.bind("<Button-1>", self.on_click)
-        # craters are the holes left by explosions
-        # keep track of them so that subsequent throws can pass through holes
-        self.craters = []
         # Set next player to take a turn, also set animation state
         self.next_player()
 
@@ -46,6 +42,9 @@ class MonkeyGame(GameApp):
         self.buildings = BuildingFactory.create_buildings(self.canvas)
         for bldg in self.buildings:  self.add_element(bldg)
         self.create_sprites()
+        # craters are the holes left by explosions
+        # keep track of them so that subsequent throws can pass through holes
+        self.craters = []
         self.create_message_box()
 
     def clear_canvas(self):
@@ -55,6 +54,7 @@ class MonkeyGame(GameApp):
         self.elements.clear()
 
     def create_sprites(self):
+        """Create the players, consisting of monkeys and their bananas."""
         # save the players in an array so we can easily switch references
         self.players = []
         # Each player (monkey) gets a reusable banana to throw.
@@ -79,7 +79,7 @@ class MonkeyGame(GameApp):
             if k == 1: mybanana.set_x_axis(tk.LEFT)
             # save each monkey and his banana as a tuple
             self.players.append((player, mybanana))
-            # Also add each gorilla to the collection of game elements
+            # Also add each monkey to the collection of game elements
             self.add_element(player)
             # NOTE: Don't add banana to game elements.
             # Updating banana is handled explicitly (drawn last).
