@@ -1,5 +1,7 @@
 """
 Named constants for values that configure the game.
+Some source files contain constants specific to those objects,
+such as building dimensions in buildings.py.
 """
 CANVAS_WIDTH = 1000
 CANVAS_HEIGHT = 600

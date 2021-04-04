@@ -14,7 +14,7 @@ class Explosion(GameCanvasElement):
     # Cludge!  canvas.itermconfigure(id, fill=color, outline=color)
     # throws exception if I specify colors as hex strings, e.g. 'xff0000' for red.
     # As a work-around, specify colors by name for each step 0..STEPS
-    COLORS = ['yellow', 'yellow', 'orange red','red', 'red', 'red2','red3',
+    COLORS = ['yellow', 'yellow', 'orange red', 'red', 'red', 'red2', 'red3',
               'sienna3','sienna4','brown4','saddle brown']
 
     def __init__(self, game_app, x=0, y=0):
@@ -33,9 +33,8 @@ class Explosion(GameCanvasElement):
         return r <= self.radius
 
     def init_canvas_object(self):
-        # for debugging, draw a box around the monkey
         r = self.radius
-        id = self.canvas.create_oval(self.x-r, self.y-r,self.x+r,self.y+r,
+        id = self.canvas.create_oval(self.x-r,self.y-r,self.x+r,self.y+r,
                     fill=self.color_for_step(0)
                     )
         return id

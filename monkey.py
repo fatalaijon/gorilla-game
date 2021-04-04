@@ -6,7 +6,7 @@ import game_constants as config
 SHOW_BOUNDING_BOX = False
 
 class Monkey(Sprite):
-    """A monkey that can throw bananas"""
+    """A monkey that can throw bananas."""
     def __init__(self, game_app, image_filename, x=0, y=0):
         super().__init__(game_app, image_filename, x, y)
         self._name = "Monkey"
@@ -14,7 +14,7 @@ class Monkey(Sprite):
 
     def init_element(self):
         self.canvas.itemconfigure(self.canvas_object_id,
-                    anchor=tk.S
+                    anchor=tk.S    # self.y is at the bottom of monkey image.
                     )
         # add a tag for identifying and selecting monkeys on the canvas
         self.canvas.addtag_withtag(config.GORILLA, self.canvas_object_id)
@@ -24,7 +24,7 @@ class Monkey(Sprite):
 
     def contains(self, x, y):
         """The point x,y is contained in the monkey's image if it
-        hits any part of the `image.
+        hits any part of the image.  Exclude empty space at corners.
         """
         w = self.width
         h = self.height

@@ -13,7 +13,7 @@ FLOOR_HEIGHT = 2*WIN_HEIGHT
 ROOM_WIDTH = 2*WIN_WIDTH
 # minimum number of rooms (windows) per building. Must be wide enough for gorilla to stand on.
 MIN_ROOMS = 5
-MAX_ROOMS = 9
+MAX_ROOMS = 8
 
 class BuildingFactory:
     """Factory for buildings, of course."""
