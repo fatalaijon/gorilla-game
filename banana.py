@@ -69,7 +69,10 @@ class Banana(Sprite):
     @angle.setter
     def angle(self, degrees):
         """Set the angle of banana toss in degrees above horizontal."""
-        self._angle = degrees
+        MIN_ANGLE = -45 # if gorillas are on buildings, need to allow < 0
+        MAX_ANGLE = 90  # throwing vertically is suicide
+        if MIN_ANGLE <= degrees <= MAX_ANGLE:
+            self._angle = degrees
 
     def set_x_axis(self, direction):
         """Set the orientation of the x-axis.  This determines the

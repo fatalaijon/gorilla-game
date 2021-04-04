@@ -21,6 +21,8 @@ class Explosion(GameCanvasElement):
         """Create an explosion centered at x, y."""
         self.radius = Explosion.EXPANSION_RATE
         self.step = 0
+        # object that was hit to cause explosion
+        self.hits = None
         # super constructor will call-back to init_canvas_object
         super().__init__(game_app, x, y)
 

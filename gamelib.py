@@ -158,7 +158,8 @@ class GameApp(ttk.Frame):
 
     def remove_element(self, element):
         """Remove an element from the canvas and list of animated elements."""
-        self.elements.remove(element)
+        if element in self.elements:
+            self.elements.remove(element)
         self.canvas.delete(element.canvas_object_id)
 
     def animate(self):
@@ -184,6 +185,10 @@ class GameApp(ttk.Frame):
         if self.timer_id:
             self.after_cancel(self.timer_id)
             self.timer_id = ""
+
+    def stopped(self) -> bool:
+        """Test if the animation loop has been stopped."""
+        return not self.timer_id
 
     def running(self) -> bool:
         """Return True if animation is running, False otherwise."""

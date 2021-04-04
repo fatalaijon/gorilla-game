@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as font
+import tkinter.simpledialog as dialog
 import tkinter.messagebox as messagebox
 from random import randint
 
@@ -18,12 +19,14 @@ class MonkeyGame(GameApp):
     with some game elements, e.g. monkeys, buildings, and a banana or two.
     """
 
+    def __init__(self, *args):
+        self.player = None      # the current player or last player to take a turn
+        super().__init__(*args)
+
     def init_game(self):
         """This method is called by the superclass (GameApp) constructor
         to initialize game elements.
         """
-        print("Canvas size:", 
-              f"{self.canvas['width']} x {self.canvas['height']}")
         self.canvas['bg'] = config.CANVAS_COLOR
         self.clear_canvas()
         self.init_control_panel()
@@ -32,18 +35,13 @@ class MonkeyGame(GameApp):
         # handle mouse clicks
         self.parent.bind("<Button-1>", self.on_click)
         # craters are the holes left by explosions
-        # keep track of them so that subsequent throws of a banana
-        # can pass through holes in buildings.
+        # keep track of them so that subsequent throws can pass through holes
         self.craters = []
-        # Set the player to take a turn
-        self.player = None
-        # this also sets the animation state
+        # Set next player to take a turn, also set animation state
         self.next_player()
 
     def init_game_objects(self):
-        """Initial objects on the game canvas.
-        Deletes any existing objects, then adds new ones.
-        """
+        """Initial objects on the game canvas."""
         # draw buildings before gorillas   
         self.buildings = BuildingFactory.create_buildings(self.canvas)
         for bldg in self.buildings:  self.add_element(bldg)
@@ -52,42 +50,31 @@ class MonkeyGame(GameApp):
 
     def clear_canvas(self):
         """Remove all objects from the canvas."""
-        for element in self.elements:
-            self.canvas.delete(element.canvas_object_id)
+        for id in self.canvas.find_all():
+            self.canvas.delete(id)
         self.elements.clear()
 
-    def ask_new_game(self, message: str):
-        """Ask user if he wants to play another game.
-
-        Returns:
-        Index of choice user selected. 0=No, 1=Yes
-        """
-        play_again = messagebox.askyesno("Gorilla Game",
-                                message+"\nPlay again?")
-        return play_again
-
     def create_sprites(self):
-        # save the gorillas in an array so we can easily switch references
+        # save the players in an array so we can easily switch references
         self.players = []
-        # Each gorilla (monkey) gets a reusable banana to throw.
+        # Each player (monkey) gets a reusable banana to throw.
         # Reuse the same banana so it remembers it's initial speed and angle.
         center_building = len(self.buildings)//2
         for k in (0,1):
             # Randomly choose a building to stand on, such that player 0 is on
-            # left and player 1 is on right.  Assumes buildings order left to right.
-            if k == 0:
-                bldg_number = randint(0, center_building-1)
-            else:
-                bldg_number = randint(center_building+1, len(self.buildings)-1)
+            # left and player 1 is on right.  Assumes buildings ordered left to right.
+            bldg_number = randint(0, min(2,center_building-1))
+            if k == 1: # player 1 count buildings from right edge
+                bldg_number = len(self.buildings) -1 - bldg_number
             building = self.buildings[bldg_number]
             player_x = building.x + building.width//2
             player_y = building.top
-            # The initial position of each banana is above the gorilla's head
             player = monkey.Monkey(self, 'images/monkey.png', player_x, player_y)
             player.name = f"Gorilla {k+1}"
-            bx = player.x
-            by = player.y - player.height - 10  # 10 pixels above monkey
-            mybanana = Banana(self, 'images/banana.png', bx, by)
+            # The initial position of each banana is above the monkey's head
+            banana_x = player.x
+            banana_y = player.y - player.height - 10  # 10 pixels above monkey
+            mybanana = Banana(self, 'images/banana.png', banana_x, banana_y)
             # player 1 throws banana to the left, player 0 throws to right (the default)
             if k == 1: mybanana.set_x_axis(tk.LEFT)
             # save each monkey and his banana as a tuple
@@ -148,13 +135,8 @@ class MonkeyGame(GameApp):
 
     def increase_angle(self, degrees):
         """Increase the angle for throwing banana by degrees."""
-        MIN_ANGLE = 0   # if gorillas are on buildings, may need to allow negative angle
-        MAX_ANGLE = 90  # throwing vertically is suicide
-        #TODO Make banana responsible for checking bounds of angle,
-        # as done for speed.
-        if MIN_ANGLE <= degrees + self.banana.angle <= MAX_ANGLE:
-            self.banana.angle += degrees
-            self.angle_text['text'] = f"Angle: {self.banana.angle:2d}"
+        self.banana.angle += degrees
+        self.angle_text['text'] = f"Angle: {self.banana.angle:2d}"
 
     def on_key_pressed(self, event):
         # print("Key Pressed:", event)
@@ -171,7 +153,7 @@ class MonkeyGame(GameApp):
 
     def on_click(self, event):
         """Handle mouse click event.  Create an explosion (for testing)."""
-        print(f"Click at ({event.x},{event.y})")
+        pass
 
     def add_element(self, element):
         """Override GameApp.add_element to keep the monkeys (gorillas) on top
@@ -182,7 +164,7 @@ class MonkeyGame(GameApp):
             self.canvas.tag_raise(config.GORILLA, element.canvas_object_id)
 
     def throw_banana(self):
-        # throw a banana
+        """ Throw a banana."""
         if not self.banana.is_moving:
             self.banana.reset()
             self.banana.start()
@@ -200,42 +182,37 @@ class MonkeyGame(GameApp):
 
     def throwing_banana(self):
         """Banana flies through the air, maybe collides with something."""
-        print("throwing banana")
         self.banana.update()
         self.banana.render()
         # Check if the banana hits something
         # 1. Hits a gorilla (monkey).  
-        # This ends the game once explosion stops.
+        # This ends the game once the explosion stops.
         for player,_ in self.players:
             if self.banana.hits(player):
                 print(f"Boom! banana hits {player}")
                 self.banana.stop()
-                bomb = Explosion(self, self.banana.x, self.banana.y)
-                self.add_element(bomb)
-                # add it to the list of craters, too
-                self.craters.append(bomb)
+                self.explosion = Explosion(self, self.banana.x, self.banana.y)
+                self.explosion.hits = player
                 # change state
                 self.animation = self.exploding
+                return
 
         for bldg in self.buildings:
             if self.banana.hits(bldg) and not self.in_crater(self.banana):
                 # hits a building, but not a hole left by previous explosion
                 print(f"Boom! banana hits {bldg}")
                 self.banana.stop()
-                bomb = Explosion(self, self.banana.x, self.banana.y)
-                self.add_element(bomb)
-                # add it to the list of craters, too
-                self.craters.append(bomb)
+                self.explosion = Explosion(self, self.banana.x, self.banana.y)
+                self.explosion.hits = bldg
                 # change state
                 self.animation = self.exploding
+                return
 
         # If execution gets here, then the banana didn't hit anything.
         # It can keep moving, otherwise it stops when below screen
         # and next player's turn.
         if self.banana.is_moving:
-            print("banana still moving")
-            self.message_box.set_text(f"({self.banana.x},{self.banana.y})")
-            self.timer_id = self.after(self.update_delay, self.animate)
+            self.message_box.set_text(f"({self.banana.x:.0f},{self.banana.y:.0f})")
         else:
             # next player's turn
             self.stop()
@@ -243,65 +220,35 @@ class MonkeyGame(GameApp):
 
     def exploding(self):
         """An explosion is occurring."""
-        active_explosions = [expl for expl in self.craters if expl.is_exploding()]
-        for explosion in active_explosions:
-            explosion.update()
-        if active_explosions:
-            self.timer_id = self.after(self.update_delay, self.animate)
+        self.explosion.update()
+        if self.explosion.is_exploding():
+            return
+        # done exploding, change the state
+        self.craters.append(self.explosion)
+        hit_object = self.explosion.hits
+        self.stop()
+        if isinstance(hit_object, monkey.Monkey):
+            winner = 1 if hit_object is self.players[1][0] else 2
+            self.game_over(winner)
+            # if the method returns, start a new game
+            self.init_game()
         else:
-            self.stop()
+            self.next_player()
+
+    def game_over(self, winner):
+        msg = f"Player {winner} wins!\n\nPlay again?"
+        newgame = messagebox.askyesno("Gorillas", msg)
+        if not newgame:
+            quit(self)
 
     def animate(self):
         self.animation()
-
-    def xanimate(self):
-        """Override GameApp.animate in order to check for collisions and start/stop animation."""
-        #for element in self.elements:
-        #    element.update()
-        #    element.render()
-        # Update the banana last
-        self.banana.update()
-        self.banana.render()
-        hit = False
-        # Check if the banana hits something
-        # 1. Hits a gorilla (monkey).  
-        # This ends the game once explosion stops.
-        for player,_ in self.players:
-            if self.banana.hits(player):
-                print(f"Boom! banana hits {player}")
-                self.banana.stop()
-                bomb = Explosion(self, self.banana.x, self.banana.y)
-                self.add_element(bomb)
-                # add it to the list of craters, too
-                self.craters.append(bomb)
-
-        # 2. Hits a building, excluding crater left by previous explosion.
-        for bldg in self.buildings:
-            if self.banana.hits(bldg) and not self.in_crater(self.banana):
-                print(f"Boom! banana hits {bldg}")
-                hit = True  # don't break, check for more collisions
-
-        # Stop the animation when a) banana not moving AND b) bomb not exploding
-        if self.banana.is_moving or any([crater.is_exploding() for crater in self.craters]):
-            # keep animating
-            pass
-        else:
-            self.stop()
-
-        if self.running():
+        if not self.stopped():
             self.timer_id = self.after(self.update_delay, self.animate)
-        else:
-            # next player's turn
-            self.next_player()
-        
 
     def in_crater(self, element) -> bool:
         """Test if element is inside a crater left by an explosion."""
-        for crater in self.craters:
-            # old explosions leave a hole that banana can pass threw
-            if crater.contains(element.x, element.y):
-                return True
-        return False
+        return any(crater.contains(element.x,element.y) for crater in self.craters)
     
     def next_player(self):
         """Select the next player to take turn. This sets self.monkey,

@@ -124,10 +124,12 @@ class Building(GameCanvasElement):
                 # randomly choose lights on (LIGHT_WINDOW) or off (DARK_WINDOW)
                 color = LIGHT_WINDOW if random() < PROB_LIGHT_ON else DARK_WINDOW
                 # draw the window
-                self.canvas.create_rectangle(x, y, 
-                                             x+WIN_WIDTH, y+WIN_HEIGHT, 
-                                             fill=color
-                                             )
+                self.canvas.create_rectangle(
+                        x, y, 
+                        x+WIN_WIDTH, y+WIN_HEIGHT, 
+                        fill=color
+                        )
+
     def contains(self, x, y):
         return self.x < x < (self.x + self.width) and self.y-self.height < y < self.y
 
