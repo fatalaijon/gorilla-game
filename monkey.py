@@ -1,5 +1,6 @@
 import tkinter as tk
 from gamelib import Sprite
+import game_constants as config
 
 # show the bounding box around monkey image, for development
 SHOW_BOUNDING_BOX = False
@@ -15,6 +16,8 @@ class Monkey(Sprite):
         self.canvas.itemconfigure(self.canvas_object_id,
                     anchor=tk.S
                     )
+        # add a tag for identifying and selecting monkeys on the canvas
+        self.canvas.addtag_withtag(config.GORILLA, self.canvas_object_id)
         if SHOW_BOUNDING_BOX:
             (xl, yl, xr, yr) = self.canvas.bbox(self.canvas_object_id)
             self.canvas.create_rectangle(xl, yl, xr, yr, outline='grey')

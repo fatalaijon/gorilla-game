@@ -8,7 +8,7 @@ class Explosion(GameCanvasElement):
     then contracts to nothing, leaving destruction behind.
     """
     # how much to grow or contract the explosion per time step
-    EXPANSION_RATE = 5
+    EXPANSION_RATE = 4
     # number of steps to expand = number of steps to contact
     STEPS = 10
     # Cludge!  canvas.itermconfigure(id, fill=color, outline=color)

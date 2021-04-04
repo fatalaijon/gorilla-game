@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as font
+import tkinter.dialog as dialog
 from random import randint
 
 from gamelib import Sprite, GameApp, Text
@@ -23,13 +24,12 @@ class MonkeyGame(GameApp):
         """
         print("Canvas size:", 
               f"{self.canvas['width']} x {self.canvas['height']}")
-        self.init_control_panel()
         self.canvas['bg'] = config.CANVAS_COLOR
-        # draw buildings before gorillas   
-        self.buildings = BuildingFactory.create_buildings(self.canvas)
-        for bldg in self.buildings:  self.add_element(bldg)
-        self.create_sprites()
-        self.create_message_box()
+
+        self.new_game_dialog("No winner yet")
+        self.init_control_panel()
+        self.init_game_objects()
+
         # handle mouse clicks
         self.parent.bind("<Button-1>", self.on_click)
         # craters are the holes left by explosions
@@ -37,8 +37,35 @@ class MonkeyGame(GameApp):
         # can pass through the hole.
         self.craters = []
         # Set the player to take a turn
-        self.monkey = None
+        self.player = None
         self.next_player()
+
+    def init_game_objects(self):
+        """Initial objects on the game canvas.
+        Deletes any existing objects, then adds new ones.
+        """
+        self.clear_canvas()
+        # draw buildings before gorillas   
+        self.buildings = BuildingFactory.create_buildings(self.canvas)
+        for bldg in self.buildings:  self.add_element(bldg)
+        self.create_sprites()
+        self.create_message_box()
+
+    def clear_canvas(self):
+        """Remove all objects from the canvas."""
+        for element in self.elements:
+            self.canvas.delete(element.canvas_object_id)
+        self.elements.clear()
+
+    def new_game_dialog(self, message: str):
+        """Ask user if he wants to play another game.
+
+        Returns:
+        Index of choice user selected. 0=No, 1=Yes
+        """
+        play_again = dialog.Dialog(title=message+"\nPlay Again?",
+                text=message, strings=["No", "Yes"], default=1)
+        return play_again
 
     def create_sprites(self):
         # save the gorillas in an array so we can easily switch references
@@ -151,6 +178,14 @@ class MonkeyGame(GameApp):
         """Handle mouse click event.  Create an explosion (for testing)."""
         print(f"Click at ({event.x},{event.y})")
 
+    def add_element(self, element):
+        """Override GameApp.add_element to keep the monkeys (gorillas) on top
+        of list of canvas elements, so they are drawn last.
+        """
+        super().add_element(element)
+        if not isinstance(element, monkey.Monkey):
+            self.canvas.tag_raise(config.GORILLA, element.canvas_object_id)
+
     def animate(self):
         """Override GameApp.animate in order to check for collisions and start/stop animation."""
         for element in self.elements:
@@ -210,13 +245,13 @@ class MonkeyGame(GameApp):
         """Select the next player to take turn. This sets self.monkey,
         self.banana, and updates controls as side effect.
         """
-        index = 1 if self.monkey == self.players[0][0] else 0
-        (self.monkey, self.banana) = self.players[index]
+        index = 1 if self.player is self.players[0][0] else 0
+        (self.player, self.banana) = self.players[index]
         # call the update methods so that the actual speed/angle 
-        # of the banana are shown
+        # of the current banana are shown
         self.increase_speed(0)
         self.increase_angle(0)
-        self.message_box.set_text(f"{self.monkey.name} turn")
+        self.message_box.set_text(f"{self.player.name}'s turn")
 
 if __name__ == "__main__":
     root = tk.Tk()

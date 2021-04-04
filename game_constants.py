@@ -11,3 +11,5 @@ CANVAS_COLOR = "medium blue"
 UPDATE_DELAY = 60  # 33
 # Constant for force of gravity. Larger value makes things fall faster.
 GRAVITY = 1
+# A tag (string) used to identify gorilla objects on canvas
+GORILLA = "gorilla"
