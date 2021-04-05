@@ -79,3 +79,19 @@ While the banana is moving, in the Banana's `update` method "paste"
 the next image from the sequence.  This makes the banana appear to spin as it moves.
 
  
+## Dialog Box
+
+When a gorilla wins, the game shows a dialog box asking if user wants to play again.
+An easy way to do this is using `tkinter.messagebox`:
+```python
+from tkinter import messagebox
+
+message = "Play\nagain?"
+reply = messagebox.askyesno("This is the title", message)
+if reply:
+    print("play another game")
+else:
+    quit()
+```
+
+The documentation claims these are modal dialogs, but since there's no reference to a parent object, I don't see how.
