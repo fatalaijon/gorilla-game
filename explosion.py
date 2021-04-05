@@ -8,7 +8,7 @@ class Explosion(GameCanvasElement):
     then contracts to nothing, leaving destruction behind.
     """
     # how much to grow or contract the explosion per time step
-    EXPANSION_RATE = 5
+    EXPANSION_RATE = 4
     # number of steps to expand = number of steps to contact
     STEPS = 10
     # Cludge!  canvas.itermconfigure(id, fill=color, outline=color)
@@ -24,6 +24,8 @@ class Explosion(GameCanvasElement):
         """Create an explosion centered at x, y."""
         self.radius = Explosion.EXPANSION_RATE
         self.step = 0
+        # object that was hit to cause explosion
+        self.hits = None
         # super constructor will call-back to init_canvas_object
         super().__init__(game_app, x, y)
 
@@ -36,9 +38,8 @@ class Explosion(GameCanvasElement):
         return r <= self.radius
 
     def init_canvas_object(self):
-        # for debugging, draw a box around the monkey
         r = self.radius
-        id = self.canvas.create_oval(self.x-r, self.y-r,self.x+r,self.y+r,
+        id = self.canvas.create_oval(self.x-r, self.y-r, self.x+r, self.y+r,
                     fill=self.color_for_step(0)
                     )
         return id
@@ -101,7 +102,7 @@ class Explosion(GameCanvasElement):
             # remove the burned out explosion
             self.canvas.delete(self.canvas_object_id)
             # and remove from GameApp so it won't be updated again
-            self.app.remove_element(self)
+            #self.app.remove_element(self)
 
     def color_for_step(self, step):
         """Color to use for explosion at a given step during expansion."""

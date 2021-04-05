@@ -17,8 +17,8 @@ class Banana(Sprite):
     # maximum initial speed of banana
     MAX_SPEED = 99
 
-    def __init__(self, game_app, image_filename, x=0, y=0):
-        super().__init__(game_app, image_filename, x, y)
+    def __init__(self, canvas, image_filename, x=0, y=0):
+        super().__init__(canvas, image_filename, x, y)
         # orientation of the x-axis. 1 = increase to right, -1 = increase to left
         self.x_axis = 1
         # initial speed and angle of a throw
@@ -69,7 +69,10 @@ class Banana(Sprite):
     @angle.setter
     def angle(self, degrees):
         """Set the angle of banana toss in degrees above horizontal."""
-        self._angle = degrees
+        MIN_ANGLE = -45 # if gorillas are on buildings, need to allow < 0
+        MAX_ANGLE = 90  # throwing vertically is suicide
+        if MIN_ANGLE <= degrees <= MAX_ANGLE:
+            self._angle = degrees
 
     def set_x_axis(self, direction):
         """Set the orientation of the x-axis.  This determines the

@@ -3,6 +3,7 @@ import tkinter.ttk as ttk
 # use ImageTk for improved PhotoImage class
 from PIL import ImageTk
 
+
 class GameCanvasElement:
     """An element on the game canvas, with attributes:
 
@@ -12,17 +13,18 @@ class GameCanvasElement:
     canvas_object_id = id of the object, used to manipulate it using canvas
     is_visible = boolean flag if element is visible
     """
-    def __init__(self, game_app, x=0, y=0):
+
+    def __init__(self, canvas, x=0, y=0, **kwargs):
         self.x = x
         self.y = y
         # Modified: save reference to game_app instead of game_app.canvas
-        self.app = game_app
-
+        #self.app = game_app
+        self._canvas = canvas
         self.is_visible = True
-        self.canvas_object_id = self.init_canvas_object()
+        self.canvas_object_id = self.init_canvas_object(**kwargs)
         self.init_element()
 
-    def init_canvas_object(self) -> int:
+    def init_canvas_object(self, **kwargs) -> int:
         """Initialize a graphical object to show on self.canvas.
         This method must return the canvas_object_id of the object.
         """
@@ -37,7 +39,7 @@ class GameCanvasElement:
     @property
     def canvas(self):
         """Return a reference to the game app's canvas."""
-        return self.app.canvas
+        return self._canvas
 
     def show(self):
         self.is_visible = True
@@ -51,59 +53,60 @@ class GameCanvasElement:
         if self.is_visible:
             self.canvas.coords(self.canvas_object_id, self.x, self.y)
 
-
     def update(self):
         pass
 
     def contains(self, x, y):
         """Test if the game element contains point x,y in its image or its 'space'.
-        
+
         Returns: True if (x,y) is inside the object's image or region.
         """
         return False
 
 
 class Text(GameCanvasElement):
-    def __init__(self, game_app, text, x=0, y=0, **kwargs):
+    def __init__(self, canvas, text, x=0, y=0, **kwargs):
         self.text = text
-        self.x = x
-        self.y = y
-        self.app = game_app
-        self.is_visible = True
-        self.canvas_object_id = self.init_canvas_object(**kwargs)
+        super().__init__(canvas, x, y, **kwargs)
+        #self.x = x
+        #self.y = y
+        #self._canvas = canvas
+        #self.is_visible = True
+        #self.canvas_object_id = self.init_canvas_object(**kwargs)
 
     def init_canvas_object(self, **kwargs):
         object_id = self.canvas.create_text(
-                    self.x, 
-                    self.y,
-                    text=self.text,
-                    **kwargs)
+            self.x,
+            self.y,
+            text=self.text,
+            **kwargs)
         return object_id
 
     def set_text(self, text):
         self.text = text
-        self.canvas.itemconfigure(self.canvas_object_id, text=text)
-    
+        self._canvas.itemconfigure(self.canvas_object_id, text=text)
+
     def append_text(self, text):
         self.set_text(self.text + text)
 
     def set_color(self, color):
-        self.canvas.itemconfigure(self.canvas_object_id, color=color)
-        
+        self._canvas.itemconfigure(self.canvas_object_id, color=color)
+
 
 class Sprite(GameCanvasElement):
     """A canvas element with an image."""
-    def __init__(self, game_app, image_filename, x=0, y=0):
+
+    def __init__(self, canvas, image_filename, x=0, y=0):
         self.image_filename = image_filename
-        super().__init__(game_app, x, y)
+        super().__init__(canvas, x, y)
 
     def init_canvas_object(self):
         #self.image = tk.PhotoImage(file=self.image_filename)
         self.image = ImageTk.PhotoImage(file=self.image_filename)
         object_id = self.canvas.create_image(
-                    self.x, 
-                    self.y,
-                    image=self.image)
+            self.x,
+            self.y,
+            image=self.image)
         return object_id
 
     @property
@@ -117,7 +120,7 @@ class Sprite(GameCanvasElement):
         return self.image.width() if self.image else 0
 
 
-class GameApp(ttk.Frame): 
+class GameApp(ttk.Frame):
     def __init__(self, parent, canvas_width, canvas_height, update_delay=33):
         super().__init__(parent, width=canvas_width)
         self.parent = parent
@@ -136,30 +139,33 @@ class GameApp(ttk.Frame):
         # bind callback for event handlers
         self.parent.bind('<KeyPress>', self.on_key_pressed)
         self.parent.bind('<KeyRelease>', self.on_key_released)
-        
+
     def create_canvas(self, canvas_width, canvas_height) -> tk.Canvas:
-        canvas = tk.Canvas(self, 
-                borderwidth=0,
-                width=canvas_width, 
-                height=canvas_height, 
-                highlightthickness=0)
+        canvas = tk.Canvas(self,
+                           borderwidth=0,
+                           width=canvas_width,
+                           height=canvas_height,
+                           highlightthickness=0)
         canvas.grid(row=0, sticky=tk.NSEW)
         return canvas
 
     def add_element(self, element):
-        """Add an element to the canvas. Element should be an object
-        with update() and render() methods.
+        """Add an element to list of animated elements. 
+        Element should be an object with update() and render() methods,
+        such as a GameCanvasElement.
         """
         if not element in self.elements:
             self.elements.append(element)
 
     def remove_element(self, element):
-        """Remove an element from the canvas."""
-        self.elements.remove(element)
+        """Remove an element from the canvas and list of animated elements."""
+        if element in self.elements:
+            self.elements.remove(element)
+        self.canvas.delete(element.canvas_object_id)
 
     def animate(self):
         """Animate each element on the canvas.
-        
+
         A subclass may override this to provide it's own animation.
         A subclass should be careful to set self.timer_id to the value
         returned by animate().
@@ -180,6 +186,10 @@ class GameApp(ttk.Frame):
         if self.timer_id:
             self.after_cancel(self.timer_id)
             self.timer_id = ""
+
+    def stopped(self) -> bool:
+        """Test if the animation loop has been stopped."""
+        return not self.timer_id
 
     def running(self) -> bool:
         """Return True if animation is running, False otherwise."""

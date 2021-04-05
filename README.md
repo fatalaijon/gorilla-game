@@ -6,14 +6,15 @@ A Python re-implementation of the classic Basic Gorilla game.
 
 ## How to Play
 
+Run `monkey_game.py` in a Python 3.6 or newer interpretter:
 ```shell
 python3 monkey_game.py
 ```
-Use Up/Down arrow keys to change the angle of banana toss, +/- keys to change the speed of banana toss. Press SPACE to toss a banana.
+
+Use the Up/Down arrow keys to change the angle of banana toss, +/- keys to change the speed of banana toss. Press SPACE to toss a banana.
 
 The game remembers each player's previously selected banana speed and angle.
 
-Some features, like "game over" still under development.
 
 ## Changes to Starter Code
 
@@ -28,15 +29,16 @@ In `gamelib.GameApp`:
 * `self.timer_id` new attribute to keep track of timer id
 
 In `gamelib.GameCanvasElement` 
-* method `init_canvas_object()` must return the object id (int).  This fixes warnings from VSCode about unknown symbol `self.canvas_object_id`, and avoids depending on a side-effect.
-* `app` - a reference to the GameApp object that was passed to the constructor. Useful so an element can remove itself from the game.
-* `canvas` - a property that returns `self.app.canvas`
+* add `**kwargs` parameter to `__init__` and pass this parameter to `init_canvas_object`. This enables passing additional named arguments to Canvas widget constructors.  I used this to create Text with alignment.
+* method `init_canvas_object(**kwargs)` returns the object id (int) instead of setting it as a side-effect.  This fixes warnings from VSCode about unknown symbol `self.canvas_object_id`.
+* make `canvas` a property that returns `self._canvas`
 
 In `gamelib.Sprite`
 * add properties `width` and `height` as convenience to get the Sprite's image width and height
-* `app` and `canvas` - same as in `GameCanvasElement`.
 
-Rename `monkeys.py` to `monkey_game.py`.
+Source code
+* Rename `monkeys.py` to `monkey_game.py`.
+* Move images to `images` subdirectory.
 
 ## Images
 
