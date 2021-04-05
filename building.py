@@ -59,8 +59,8 @@ class BuildingFactory:
         n = len(buildings) - 1
         color = bldg_colors[randint(0, len(bldg_colors) - 1)]
         # testing: use all colors sequentially
-        color = bldg_colors[n % len(bldg_colors)]
-        if n >= 1 and color == buildings[n].color and color == buildings[n-1].color:
+        #color = bldg_colors[n % len(bldg_colors)]
+        if n > 0 and color == buildings[n].color:
             # Boring. Too many buildings of same color.
             return BuildingFactory.choose_color(buildings)
         return color

@@ -11,7 +11,9 @@ Run `monkey_game.py` in a Python 3.6 or newer interpretter:
 python3 monkey_game.py
 ```
 
-Use the Up/Down arrow keys to change the angle of banana toss, +/- keys to change the speed of banana toss. Press SPACE to toss a banana.
+The goal is to throw a banana that hits the other gorilla.
+
+Use the Up/Down arrow keys to change the angle of banana toss; +/- keys to change the speed of banana toss. Press SPACE to toss a banana. Alternatively, you can press buttons at the bottom of screen for these actions.
 
 The game remembers each player's previously selected banana speed and angle.
 
@@ -40,7 +42,7 @@ Source code
 * Rename `monkeys.py` to `monkey_game.py`.
 * Move images to `images` subdirectory.
 
-## Images
+## Images and Animation
 
 For a better implementation of PhotoImage:
 ```python
@@ -73,7 +75,7 @@ paste(image)
     as the original image.
 ```
 
-While the banana is moving, in the `update` method "paste" the next image
-from the sequence.  This makes the banana appear to spin as it moves.
+While the banana is moving, in the Banana's `update` method "paste" 
+the next image from the sequence.  This makes the banana appear to spin as it moves.
 
  

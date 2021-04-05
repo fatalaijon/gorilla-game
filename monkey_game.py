@@ -137,7 +137,7 @@ class MonkeyGame(GameApp):
         self.angle_text['text'] = f"Angle: {self.banana.angle:2d}"
 
     def on_key_pressed(self, event):
-        # print("Key Pressed:", event)
+        # log("Key Pressed:", event)
         if event.char == '+':
             self.increase_speed(1)
         elif event.char == '-':
@@ -187,7 +187,7 @@ class MonkeyGame(GameApp):
         # This ends the game once the explosion stops.
         for player in self.players:
             if self.banana.hits(player):
-                print(f"Boom! banana hits {player}")
+                log(f"Boom! banana hits {player}")
                 self.banana.stop()
                 self.explosion = Explosion(self.canvas, self.banana.x, self.banana.y)
                 self.explosion.hits = player
@@ -198,7 +198,7 @@ class MonkeyGame(GameApp):
         for bldg in self.buildings:
             if self.banana.hits(bldg) and not self.in_crater(self.banana):
                 # hits a building, but not a hole left by previous explosion
-                print(f"Boom! banana hits {bldg}")
+                log(f"Boom! banana hits {bldg}")
                 self.banana.stop()
                 self.explosion = Explosion(self.canvas, self.banana.x, self.banana.y)
                 self.explosion.hits = bldg
@@ -265,6 +265,12 @@ class MonkeyGame(GameApp):
         self.increase_angle(0)
         self.message_box.set_text(f"{self.player.name}'s turn")
         self.animation = self.idle
+
+
+def log(message): 
+     """Show debugging messages?"""
+     #print(message)
+     pass
 
 if __name__ == "__main__":
     root = tk.Tk()
