@@ -36,7 +36,7 @@ class Explosion(GameCanvasElement):
 
     def init_canvas_object(self):
         r = self.radius
-        id = self.canvas.create_oval(self.x-r,self.y-r,self.x+r,self.y+r,
+        id = self.canvas.create_oval(self.x-r, self.y-r, self.x+r, self.y+r,
                     fill=self.color_for_step(0)
                     )
         return id
@@ -99,7 +99,7 @@ class Explosion(GameCanvasElement):
             # remove the burned out explosion
             self.canvas.delete(self.canvas_object_id)
             # and remove from GameApp so it won't be updated again
-            self.app.remove_element(self)
+            #self.app.remove_element(self)
 
     def color_for_step(self, step):
         """Color to use for explosion at a given step during expansion."""

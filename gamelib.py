@@ -14,17 +14,17 @@ class GameCanvasElement:
     is_visible = boolean flag if element is visible
     """
 
-    def __init__(self, game_app, x=0, y=0):
+    def __init__(self, canvas, x=0, y=0, **kwargs):
         self.x = x
         self.y = y
         # Modified: save reference to game_app instead of game_app.canvas
-        self.app = game_app
-
+        #self.app = game_app
+        self._canvas = canvas
         self.is_visible = True
-        self.canvas_object_id = self.init_canvas_object()
+        self.canvas_object_id = self.init_canvas_object(**kwargs)
         self.init_element()
 
-    def init_canvas_object(self) -> int:
+    def init_canvas_object(self, **kwargs) -> int:
         """Initialize a graphical object to show on self.canvas.
         This method must return the canvas_object_id of the object.
         """
@@ -39,7 +39,7 @@ class GameCanvasElement:
     @property
     def canvas(self):
         """Return a reference to the game app's canvas."""
-        return self.app.canvas
+        return self._canvas
 
     def show(self):
         self.is_visible = True
@@ -65,13 +65,14 @@ class GameCanvasElement:
 
 
 class Text(GameCanvasElement):
-    def __init__(self, game_app, text, x=0, y=0, **kwargs):
+    def __init__(self, canvas, text, x=0, y=0, **kwargs):
         self.text = text
-        self.x = x
-        self.y = y
-        self.app = game_app
-        self.is_visible = True
-        self.canvas_object_id = self.init_canvas_object(**kwargs)
+        super().__init__(canvas, x, y, **kwargs)
+        #self.x = x
+        #self.y = y
+        #self._canvas = canvas
+        #self.is_visible = True
+        #self.canvas_object_id = self.init_canvas_object(**kwargs)
 
     def init_canvas_object(self, **kwargs):
         object_id = self.canvas.create_text(
@@ -83,21 +84,21 @@ class Text(GameCanvasElement):
 
     def set_text(self, text):
         self.text = text
-        self.canvas.itemconfigure(self.canvas_object_id, text=text)
+        self._canvas.itemconfigure(self.canvas_object_id, text=text)
 
     def append_text(self, text):
         self.set_text(self.text + text)
 
     def set_color(self, color):
-        self.canvas.itemconfigure(self.canvas_object_id, color=color)
+        self._canvas.itemconfigure(self.canvas_object_id, color=color)
 
 
 class Sprite(GameCanvasElement):
     """A canvas element with an image."""
 
-    def __init__(self, game_app, image_filename, x=0, y=0):
+    def __init__(self, canvas, image_filename, x=0, y=0):
         self.image_filename = image_filename
-        super().__init__(game_app, x, y)
+        super().__init__(canvas, x, y)
 
     def init_canvas_object(self):
         #self.image = tk.PhotoImage(file=self.image_filename)

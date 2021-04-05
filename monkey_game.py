@@ -20,7 +20,7 @@ class MonkeyGame(GameApp):
     """
 
     def __init__(self, *args):
-        self.player = None      # the current player or last player to take a turn
+        self.player_index = 1    # Index of player to take a turn, pre-updated by next_player()
         super().__init__(*args)
 
     def init_game(self):
@@ -33,7 +33,7 @@ class MonkeyGame(GameApp):
         self.init_game_objects()
         # handle mouse clicks (not actually used now)
         self.parent.bind("<Button-1>", self.on_click)
-        # Set next player to take a turn, also set animation state
+        # Set next player to take a turn and the animation state
         self.next_player()
 
     def init_game_objects(self):
@@ -41,7 +41,7 @@ class MonkeyGame(GameApp):
         # draw buildings before gorillas   
         self.buildings = BuildingFactory.create_buildings(self.canvas)
         for bldg in self.buildings:  self.add_element(bldg)
-        self.create_sprites()
+        self.create_players()
         # craters are the holes left by explosions
         # keep track of them so that subsequent throws can pass through holes
         self.craters = []
@@ -53,7 +53,7 @@ class MonkeyGame(GameApp):
             self.canvas.delete(id)
         self.elements.clear()
 
-    def create_sprites(self):
+    def create_players(self):
         """Create the players, consisting of monkeys and their bananas."""
         # save the players in an array so we can easily switch references
         self.players = []
@@ -69,23 +69,18 @@ class MonkeyGame(GameApp):
             building = self.buildings[bldg_number]
             player_x = building.x + building.width//2
             player_y = building.top
-            player = monkey.Monkey(self, 'images/monkey.png', player_x, player_y)
+            player = monkey.Monkey(self.canvas, 'images/monkey.png', player_x, player_y)
             player.name = f"Gorilla {k+1}"
-            # The initial position of each banana is above the monkey's head
-            banana_x = player.x
-            banana_y = player.y - player.height - 10  # 10 pixels above monkey
-            mybanana = Banana(self, 'images/banana.png', banana_x, banana_y)
             # player 1 throws banana to the left, player 0 throws to right (the default)
-            if k == 1: mybanana.set_x_axis(tk.LEFT)
-            # save each monkey and his banana as a tuple
-            self.players.append((player, mybanana))
-            # Also add each monkey to the collection of game elements
+            if k == 1: player.banana.set_x_axis(tk.LEFT)
+            self.players.append(player)
+            # ??? add each monkey to the collection of game elements ???
             self.add_element(player)
             # NOTE: Don't add banana to game elements.
             # Updating banana is handled explicitly (drawn last).
 
     def create_message_box(self):
-        self.message_box = Text(self,
+        self.message_box = Text(self.canvas,
                 " "*16, 
                 20, 40,  # show text in upper left corner of canvas
                 fill="white",
@@ -97,35 +92,38 @@ class MonkeyGame(GameApp):
     def init_control_panel(self):
         """Create a row for controls and text messages."""
         textfont = font.Font(family="Arial", size=16, weight=font.NORMAL)
+        # An iterator for getting the next grid column index
+        column = iter(range(0,20))
         controls = ttk.Frame(self, name="controls", borderwidth=4, padding=5) 
         controls.grid(row=1, column=0)
-        self.speed_text = tk.Label(controls, text="S peed: XX")
-        self.speed_text.grid(row=0, column=0)
+        self.speed_text = tk.Label(controls, text="Speed: XX")
+        #self.speed_text.grid(row=0, column=next(column))
+        # Buttons to set the speed of toss
         self.buttonMinus = tk.Button(controls, text="-", 
                 command=lambda : self.increase_speed(-1)
                 )
-        self.buttonMinus.grid(row=0, column=1)
         self.buttonPlus = tk.Button(controls, text="+",
                 command=lambda : self.increase_speed(1)
                 )
-        self.buttonPlus.grid(row=0, column=2)
         # leave some space
-        tk.Label(controls, text="  ").grid(row=0, column=3)
-        # set the angle for throwing banana
+        tk.Label(controls, text="  ")
+        # Buttons to set the angle of toss
         self.angle_text = tk.Label(controls, text="Angle:  0")
-        self.angle_text.grid(row=0, column=4)
         # up arrow \u2191, down arrow \u2193, triple up \u290A, triple down \u290B
         self.angleDown = tk.Button(controls, text="\u290B",
                 command=lambda: self.increase_angle(-5)
                 )
-        self.angleDown.grid(row=0, column=5)
         self.angleUp = tk.Button(controls, text="\u290A",
                 command=lambda : self.increase_angle(5)
                 )
-        self.angleUp.grid(row=0, column=6)        
-        # add some padding to all components
+        # Button to throw banana
+        tk.Label(controls, text="  ")
+        self.throw_button = tk.Button(controls, text="Throw!",
+                command = self.throw_banana)    
+        # assign components to grid, add some padding to all components
         for component in controls.winfo_children():
             component['font'] = textfont
+            component.grid(row=0, column=next(column))
             component.grid_configure(padx=5, pady=3)
 
     def increase_speed(self, amount):
@@ -187,11 +185,11 @@ class MonkeyGame(GameApp):
         # Check if the banana hits something
         # 1. Hits a gorilla (monkey).  
         # This ends the game once the explosion stops.
-        for player,_ in self.players:
+        for player in self.players:
             if self.banana.hits(player):
                 print(f"Boom! banana hits {player}")
                 self.banana.stop()
-                self.explosion = Explosion(self, self.banana.x, self.banana.y)
+                self.explosion = Explosion(self.canvas, self.banana.x, self.banana.y)
                 self.explosion.hits = player
                 # change state
                 self.animation = self.exploding
@@ -202,7 +200,7 @@ class MonkeyGame(GameApp):
                 # hits a building, but not a hole left by previous explosion
                 print(f"Boom! banana hits {bldg}")
                 self.banana.stop()
-                self.explosion = Explosion(self, self.banana.x, self.banana.y)
+                self.explosion = Explosion(self.canvas, self.banana.x, self.banana.y)
                 self.explosion.hits = bldg
                 # change state
                 self.animation = self.exploding
@@ -228,16 +226,20 @@ class MonkeyGame(GameApp):
         hit_object = self.explosion.hits
         self.stop()
         if isinstance(hit_object, monkey.Monkey):
-            winner = 1 if hit_object is self.players[1][0] else 2
-            self.game_over(winner)
-            # if the method returns, start a new game
-            self.init_game()
-        else:
-            self.next_player()
+            try:
+                loser = self.players.index(hit_object)
+                winner = self.players[1 - loser]
+                self.game_over(winner)
+                # if the method returns, start a new game
+                self.init_game()
+                return
+            except ValueError as ex:
+                print(ex)
+        self.next_player()
 
-    def game_over(self, winner):
-        msg = f"Player {winner} wins!\n\nPlay again?"
-        newgame = messagebox.askyesno("Gorillas", msg)
+    def game_over(self, winner: monkey.Monkey):
+        msg = f"{winner.name} wins!\n\nPlay again?"
+        newgame = messagebox.askyesno("Game Over", msg)
         if not newgame:
             quit(self)
 
@@ -251,12 +253,13 @@ class MonkeyGame(GameApp):
         return any(crater.contains(element.x,element.y) for crater in self.craters)
     
     def next_player(self):
-        """Select the next player to take turn. This sets self.monkey,
-        self.banana, and updates controls as side effect.
+        """Select the next player to take a turn.
+        This sets self.monkey, self.banana, and updates controls as side effects.
         """
-        index = 1 if self.player is self.players[0][0] else 0
-        (self.player, self.banana) = self.players[index]
-        # call the update methods so that the actual speed/angle 
+        self.player_index = 1 - self.player_index
+        self.player = self.players[self.player_index]
+        self.banana = self.player.banana
+        # call the update methods on controls so that the actual speed/angle 
         # of the current banana are shown
         self.increase_speed(0)
         self.increase_angle(0)

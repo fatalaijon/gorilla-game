@@ -5,13 +5,13 @@ from random import random, randint
 # Probability lights are on in a room in a building
 PROB_LIGHT_ON = 0.8
 LIGHT_WINDOW = "yellow2"
-DARK_WINDOW = "gray40"
+DARK_WINDOW = "gray35"
 # Arbitrary guess as to height/width of windows, rooms, and floors
 WIN_HEIGHT = 16
-WIN_WIDTH = int(0.5*WIN_HEIGHT)
+WIN_WIDTH = WIN_HEIGHT//2
 FLOOR_HEIGHT = 2*WIN_HEIGHT
 ROOM_WIDTH = 2*WIN_WIDTH
-# minimum number of rooms (windows) per building. Must be wide enough for gorilla to stand on.
+# minimum number of rooms (windows) per floor. Must be wide enough for gorilla to stand on.
 MIN_ROOMS = 5
 MAX_ROOMS = 8
 
@@ -22,9 +22,9 @@ class BuildingFactory:
     def create_buildings(cls, canvas):
         """Create buildings that fill the width of a canvas. Heights of 
         buildings are randomly chosen not to exceed about 70% of canvas height.
-        This method uses canvas['width'] and canvas['height'] to get the canvas,
+        This method uses canvas['width'] and canvas['height'] to get the canvas size,
         since winfo_width() and winfo_height() don't return the correct sizes
-        of the canvas hasn't been drawn yet.
+        of the canvas if it hasn't been drawn yet.
 
         Returns:  list of Building objects
         """
@@ -38,7 +38,7 @@ class BuildingFactory:
             width = ROOM_WIDTH*randint(MIN_ROOMS,MAX_ROOMS) + randint(0, WIN_WIDTH)
             # fill the width of canvas with complete buildings
             if x + width + min_bldg_width > canvas_width:
-                # expand to fill remaining space
+                # when remaining space is small, expand bldg to fill the remaining space
                 width = canvas_width - x
             # building height not necessarily a multiple of floor height,
             # so the windows don't all line up
@@ -58,7 +58,7 @@ class BuildingFactory:
         bldg_colors = ["firebrick3", "cyan3", "gray80", "light slate gray", "navajo white" ]
         n = len(buildings) - 1
         color = bldg_colors[randint(0, len(bldg_colors) - 1)]
-        # testing: use all colors
+        # testing: use all colors sequentially
         color = bldg_colors[n % len(bldg_colors)]
         if n >= 1 and color == buildings[n].color and color == buildings[n-1].color:
             # Boring. Too many buildings of same color.
@@ -79,19 +79,12 @@ class Building(GameCanvasElement):
             width - the building width
             height - the building height
         """
-        self._canvas = canvas
-        self.x = x
-        self.y = y
         self.width = width
         self.height = height
         self.color = color
-        self.canvas_object_id = self.init_canvas_object()
-        self.is_visible = True
-
-    # override canvas property from GameCanvasElement
-    @property
-    def canvas(self):
-        return self._canvas
+        super().__init__(canvas, x, y)
+        # called by GameCanvasElement onstructor
+        #self.canvas_object_id = self.init_canvas_object()
     
     @property
     def top(self):
@@ -99,6 +92,7 @@ class Building(GameCanvasElement):
         return self.y - self.height
 
     def init_canvas_object(self):
+        """Draw a building with windows."""
         xright = self.x + self.width
         ytop = self.y - self.height # coordinate system increases downward
 
