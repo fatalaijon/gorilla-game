@@ -5,8 +5,7 @@ import tkinter.simpledialog as dialog
 import tkinter.messagebox as messagebox
 from random import randint
 
-from gamelib import Sprite, GameApp, Text
-from banana import Banana
+from gamelib import GameApp, Text
 from building import BuildingFactory
 from explosion import Explosion
 import game_constants as config
@@ -21,6 +20,8 @@ class MonkeyGame(GameApp):
 
     def __init__(self, *args):
         self.player_index = 1    # Index of player to take a turn, pre-updated by next_player()
+        # Cludge. Keep separate objects for scores.
+        self.scores = [tk.IntVar(), tk.IntVar()]
         super().__init__(*args)
 
     def init_game(self):
@@ -29,10 +30,10 @@ class MonkeyGame(GameApp):
         """
         self.canvas['bg'] = config.CANVAS_COLOR
         self.clear_canvas()
-        self.init_control_panel()
         self.init_game_objects()
         # handle mouse clicks (not actually used now)
         self.parent.bind("<Button-1>", self.on_click)
+        self.init_control_panel()
         # Set next player to take a turn and the animation state
         self.next_player()
 
@@ -42,6 +43,7 @@ class MonkeyGame(GameApp):
         self.buildings = BuildingFactory.create_buildings(self.canvas)
         for bldg in self.buildings:  self.add_element(bldg)
         self.create_players()
+        self.add_players_to_game()
         # craters are the holes left by explosions
         # keep track of them so that subsequent throws can pass through holes
         self.craters = []
@@ -53,31 +55,41 @@ class MonkeyGame(GameApp):
             self.canvas.delete(id)
         self.elements.clear()
 
-    def create_players(self):
-        """Create the players, consisting of monkeys and their bananas."""
-        # save the players in an array so we can easily switch references
-        self.players = []
-        # Each player (monkey) gets a reusable banana to throw.
-        # Reuse the same banana so it remembers it's initial speed and angle.
+    def add_players_to_game(self):
+        """After creating players and buildings, position the players on top of buildings.
+        """
         center_building = len(self.buildings)//2
         for k in (0,1):
             # Randomly choose a building to stand on, such that player 0 is on
-            # left and player 1 is on right.  Assumes buildings ordered left to right.
+            # left and player 1 is on right.  This assumes buildings ordered left to right.
             bldg_number = randint(0, min(2,center_building-1))
             if k == 1: # player 1 count buildings from right edge
                 bldg_number = len(self.buildings) -1 - bldg_number
             building = self.buildings[bldg_number]
             player_x = building.x + building.width//2
             player_y = building.top
+            self.players[k].move_to(player_x, player_y)
+
+    def create_players(self):
+        """Create the players, consisting of monkeys and their bananas.
+        The players are implemented as canvas objects. Hence, if you clear
+        the canvas the player images are destroyed, too.
+        """
+        # save the players in an array so we can easily switch references
+        self.players = []
+        # Each player (monkey) gets a reusable banana to throw.
+        # Reuse the same banana so it remembers it's initial speed and angle.
+        canvas_width = int(self.canvas['width'])
+        canvas_height = int(self.canvas['height'])
+        for k in (0,1):
+            player_x = 100 if k == 1 else canvas_width - 100
+            player_y = canvas_height
+            # Monkey constructor will create the monkey's banana
             player = monkey.Monkey(self.canvas, 'images/monkey.png', player_x, player_y)
             player.name = f"Gorilla {k+1}"
             # player 1 throws banana to the left, player 0 throws to right (the default)
             if k == 1: player.banana.set_x_axis(tk.LEFT)
             self.players.append(player)
-            # ??? add each monkey to the collection of game elements ???
-            self.add_element(player)
-            # NOTE: Don't add banana to game elements.
-            # Updating banana is handled explicitly (drawn last).
 
     def create_message_box(self):
         self.message_box = Text(self.canvas,
@@ -96,9 +108,13 @@ class MonkeyGame(GameApp):
         column = iter(range(0,20))
         controls = ttk.Frame(self, name="controls", borderwidth=4, padding=5) 
         controls.grid(row=1, column=0)
-        self.speed_text = tk.Label(controls, text="Speed: XX")
-        #self.speed_text.grid(row=0, column=next(column))
-        # Buttons to set the speed of toss
+        # Name and Score for Player 1
+        self.player1 = tk.Label(controls, text=self.players[0].name+":", fg=config.SCOREBOARD_COLOR)
+        self.score1 = tk.Label(controls, textvariable=self.scores[0], fg=config.SCOREBOARD_COLOR)
+        tk.Label(controls, text="   ")
+
+        # Speed of banana toss and controls to change it
+        self.speed_text = tk.Label(controls, text="Speed: 00")
         self.buttonMinus = tk.Button(controls, text="-", 
                 command=lambda : self.increase_speed(-1)
                 )
@@ -119,7 +135,11 @@ class MonkeyGame(GameApp):
         # Button to throw banana
         tk.Label(controls, text="  ")
         self.throw_button = tk.Button(controls, text="Throw!",
-                command = self.throw_banana)    
+                command = self.throw_banana)
+        tk.Label(controls, text="   ")
+        # Name and score of player 2
+        self.player2 = tk.Label(controls, text=self.players[1].name+":", fg=config.SCOREBOARD_COLOR)
+        self.score2 = tk.Label(controls, textvariable=self.scores[1], fg=config.SCOREBOARD_COLOR) 
         # assign components to grid, add some padding to all components
         for component in controls.winfo_children():
             component['font'] = textfont
@@ -166,6 +186,8 @@ class MonkeyGame(GameApp):
         if not self.banana.is_moving:
             self.banana.reset()
             self.banana.start()
+        # repair the player images
+        (player.render() for player in self.players)
         # start the animation
         self.animation = self.throwing_banana
         # restart animation loop
@@ -227,8 +249,9 @@ class MonkeyGame(GameApp):
         self.stop()
         if isinstance(hit_object, monkey.Monkey):
             try:
+                # index of the winning player
                 loser = self.players.index(hit_object)
-                winner = self.players[1 - loser]
+                winner = 1 - loser
                 self.game_over(winner)
                 # if the method returns, start a new game
                 self.init_game()
@@ -237,8 +260,11 @@ class MonkeyGame(GameApp):
                 print(ex)
         self.next_player()
 
-    def game_over(self, winner: monkey.Monkey):
-        msg = f"{winner.name} wins!\n\nPlay again?"
+    def game_over(self, winner_index: int):
+        score = self.scores[winner_index]
+        score.set(score.get()+1)
+        winner = self.players[winner_index]
+        msg = f"{winner} wins!\n\nPlay again?"
         newgame = messagebox.askyesno("Game Over", msg)
         if not newgame:
             quit(self)
@@ -263,7 +289,7 @@ class MonkeyGame(GameApp):
         # of the current banana are shown
         self.increase_speed(0)
         self.increase_angle(0)
-        self.message_box.set_text(f"{self.player.name}'s turn")
+        self.message_box.set_text(f"{self.player}'s turn")
         self.animation = self.idle
 
 

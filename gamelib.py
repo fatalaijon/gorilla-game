@@ -7,11 +7,14 @@ from PIL import ImageTk
 class GameCanvasElement:
     """An element on the game canvas, with attributes:
 
-    x = x-coord of approximate center of image
-    y = y-coord of approximate center of image
+    x = x-coord of image
+    y = y-coord of image
     canvas = reference to the game canvas
     canvas_object_id = id of the object, used to manipulate it using canvas
-    is_visible = boolean flag if element is visible
+    is_visible = boolean flag if element is visible.
+
+    By default the (x,y) coordinate are at the center of the image,
+    but this can be changed by subclasses or calls to canvas.itemconfigure().
     """
 
     def __init__(self, canvas, x=0, y=0, **kwargs):
@@ -61,25 +64,21 @@ class GameCanvasElement:
 
         Returns: True if (x,y) is inside the object's image or region.
         """
-        return False
+        (xl,yl, xr,yr) = self.canvas.bbox(self.canvas_object_id)
+        return xl <= x <= xr and min(yl,yr) <= y <= max(yl,yr)
 
 
 class Text(GameCanvasElement):
     def __init__(self, canvas, text, x=0, y=0, **kwargs):
         self.text = text
         super().__init__(canvas, x, y, **kwargs)
-        #self.x = x
-        #self.y = y
-        #self._canvas = canvas
-        #self.is_visible = True
-        #self.canvas_object_id = self.init_canvas_object(**kwargs)
 
     def init_canvas_object(self, **kwargs):
         object_id = self.canvas.create_text(
-            self.x,
-            self.y,
-            text=self.text,
-            **kwargs)
+                self.x,
+                self.y,
+                text=self.text,
+                **kwargs)
         return object_id
 
     def set_text(self, text):
@@ -104,9 +103,9 @@ class Sprite(GameCanvasElement):
         #self.image = tk.PhotoImage(file=self.image_filename)
         self.image = ImageTk.PhotoImage(file=self.image_filename)
         object_id = self.canvas.create_image(
-            self.x,
-            self.y,
-            image=self.image)
+                self.x,
+                self.y,
+                image=self.image)
         return object_id
 
     @property
@@ -122,7 +121,7 @@ class Sprite(GameCanvasElement):
 
 class GameApp(ttk.Frame):
     def __init__(self, parent, canvas_width, canvas_height, update_delay=33):
-        super().__init__(parent, width=canvas_width)
+        super().__init__(parent, width=canvas_width, height=canvas_height)
         self.parent = parent
         self.update_delay = update_delay
         # row 0 is the canvas, row 1 for controls and text

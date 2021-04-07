@@ -49,6 +49,21 @@ class Monkey(Sprite):
         if dx > w/4 and dy > h/4: return False
         return True
 
+    def move_to(self, x, y):
+        """Move the player's image to canvas (x,y).
+        This also moves the starting position of a banana toss.
+        """
+        dx = x - self.x
+        dy = y - self.y
+        # canvas.move parameters are offsets (deltas) from current positioin
+        self.canvas.move(self.canvas_object_id, dx, dy)
+        self.x = x
+        self.y = y
+        # move the banana too, of course.
+        self.canvas.move(self.banana.canvas_object_id, dx, dy)
+        self.banana.start_x += dx
+        self.banana.start_y += dy
+
     @property
     def name(self):
         return self._name
@@ -67,4 +82,4 @@ class Monkey(Sprite):
         self._banana = value
         
     def __str__(self):
-        return f"Monkey at ({self.x},{self.y})"
+        return f"{self._name}"
