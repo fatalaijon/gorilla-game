@@ -31,16 +31,19 @@ In `gamelib.GameApp`:
 * `self.timer_id` new attribute to keep track of timer id
 
 In `gamelib.GameCanvasElement` 
-* add `**kwargs` parameter to `__init__` and pass this parameter to `init_canvas_object`. This enables passing additional named arguments to Canvas widget constructors.  I used this to create Text with alignment.
+* change constructor signature to `__init__(self, canvas, x=0, y=0, **kwargs)`, where `**kwargs` is passed to `init_canvas_object`. This enables passing additional named parameters to Canvas widget constructors. I use `**kwargs` to create Text with alignment.
 * method `init_canvas_object(**kwargs)` returns the object id (int) instead of setting it as a side-effect.  This fixes warnings from VSCode about unknown symbol `self.canvas_object_id`.
 * make `canvas` a property that returns `self._canvas`
 
 In `gamelib.Sprite`
 * add properties `width` and `height` as convenience to get the Sprite's image width and height
 
-Source code
-* Rename `monkeys.py` to `monkey_game.py`.
+Source files
+
+* Split code in `monkeys.py` to separate files for each class.
+* MonkeyGame class and the "main" block to start it moved to `monkey_game.py`.
 * Move images to `images` subdirectory.
+* Add `game_constants.py` for global constants.
 
 ## Images and Animation
 
@@ -52,7 +55,7 @@ img1 = ImageTk.PhotoImage(Image.open('myimage.png'))
 # or pass image data to constructor:
 img2 = ImageTk.PhotoImage(image_data)
 ```
-documentation claims that `ImageTk.PhotoImage` is a 
+documentation states that `ImageTk.PhotoImage` is a 
 "Tkinter-compatible photo image."
 The `ImageTk.PhotoImage` constructor also accepts `file=` and `data=`
 parameters to initialize the photo image object.
@@ -75,8 +78,9 @@ paste(image)
     as the original image.
 ```
 
-While the banana is moving, in the Banana's `update` method "paste" 
-the next image from the sequence.  This makes the banana appear to spin as it moves.
+While the banana is moving, in the Banana `update` method "paste" 
+the next image from the sequence into the banana PhotoImage object.  
+This makes the banana appear to spin as it moves.
 
  
 ## Dialog Box
@@ -87,11 +91,10 @@ An easy way to do this is using `tkinter.messagebox`:
 from tkinter import messagebox
 
 message = "Play\nagain?"
-reply = messagebox.askyesno("This is the title", message)
+reply = messagebox.askyesno("Game Over", message)  # Returns true or false
 if reply:
     print("play another game")
 else:
     quit()
 ```
 
-The documentation claims these are modal dialogs, but since there's no reference to a parent object, I don't see how.

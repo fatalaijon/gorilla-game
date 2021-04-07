@@ -1,10 +1,11 @@
 """
 Named constants for values that configure the game.
-Some source files contain constants specific to those objects,
-such as building dimensions in buildings.py.
+Some source files contain constants specific to those objects.
+
+Constants for building dimensions and colors are in building.py
 """
 CANVAS_WIDTH = 1000
-CANVAS_HEIGHT = 600
+CANVAS_HEIGHT = 640
 # Canvas background color.
 # Preferrably a dark color that does not appear in images 
 # of monkey, banana, or buildings.

@@ -15,7 +15,10 @@ import monkey
 
 class MonkeyGame(GameApp):
     """The main class for the Monkey game consists of a canvas
-    with some game elements, e.g. monkeys, buildings, and a banana or two.
+    and game elements, principly monkeys, buildings, and a banana
+    for each monkey.  There is a control panel below the canvas
+    that displays or changes the angle & speed of banana toss,
+    and shows the players' scores.
     """
 
     def __init__(self, *args):
@@ -72,15 +75,18 @@ class MonkeyGame(GameApp):
 
     def create_players(self):
         """Create the players, consisting of monkeys and their bananas.
+
+        Each player (monkey) gets a reusable banana to throw.
+        Reuse the same banana so it remembers it's initial speed and angle.
         The players are implemented as canvas objects. Hence, if you clear
         the canvas the player images are destroyed, too.
         """
         # save the players in an array so we can easily switch references
         self.players = []
-        # Each player (monkey) gets a reusable banana to throw.
-        # Reuse the same banana so it remembers it's initial speed and angle.
         canvas_width = int(self.canvas['width'])
         canvas_height = int(self.canvas['height'])
+        # Create the players. The position will be updated in the
+        # method add_players_to_game.
         for k in (0,1):
             player_x = 100 if k == 1 else canvas_width - 100
             player_y = canvas_height
@@ -92,6 +98,9 @@ class MonkeyGame(GameApp):
             self.players.append(player)
 
     def create_message_box(self):
+        """A message box that shows which player is to take a turn,
+        and other status messages.
+        """
         self.message_box = Text(self.canvas,
                 " "*16, 
                 20, 40,  # show text in upper left corner of canvas
@@ -186,11 +195,11 @@ class MonkeyGame(GameApp):
         if not self.banana.is_moving:
             self.banana.reset()
             self.banana.start()
-        # repair the player images
+        # redraw the player images (doesn't seem to work)
         (player.render() for player in self.players)
-        # start the animation
+        # set the animation method to call
         self.animation = self.throwing_banana
-        # restart animation loop
+        # start animation loop
         self.start()
 
     ##
@@ -217,6 +226,7 @@ class MonkeyGame(GameApp):
                 self.animation = self.exploding
                 return
 
+        # 2. Hits a building and blasts a hole in the building.
         for bldg in self.buildings:
             if self.banana.hits(bldg) and not self.in_crater(self.banana):
                 # hits a building, but not a hole left by previous explosion
@@ -229,8 +239,8 @@ class MonkeyGame(GameApp):
                 return
 
         # If execution gets here, then the banana didn't hit anything.
-        # It can keep moving, otherwise it stops when below screen
-        # and next player's turn.
+        # It can keep moving, otherwise it stops when below the screen
+        # and changes state to next player's turn.
         if self.banana.is_moving:
             self.message_box.set_text(f"({self.banana.x:.0f},{self.banana.y:.0f})")
         else:
@@ -261,6 +271,7 @@ class MonkeyGame(GameApp):
         self.next_player()
 
     def game_over(self, winner_index: int):
+        """Update scores and ask to play again."""
         score = self.scores[winner_index]
         score.set(score.get()+1)
         winner = self.players[winner_index]

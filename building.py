@@ -6,12 +6,18 @@ from random import random, randint
 PROB_LIGHT_ON = 0.8
 LIGHT_WINDOW = "yellow2"
 DARK_WINDOW = "gray35"
+# Min and Max building height, as a fraction of the canvas height
+BLDG_MIN_HEIGHT = 0.2
+BLDG_MAX_HEIGHT = 0.7
+# Building colors, of course
+BLDG_COLORS = ["firebrick3", "cyan3", "gray80", "light slate gray", "navajo white" ]
 # Arbitrary guess as to height/width of windows, rooms, and floors
 WIN_HEIGHT = 16
 WIN_WIDTH = WIN_HEIGHT//2
 FLOOR_HEIGHT = 2*WIN_HEIGHT
 ROOM_WIDTH = 2*WIN_WIDTH
-# minimum number of rooms (windows) per floor. Must be wide enough for gorilla to stand on.
+# Minimum/maximum number of rooms (windows) per floor. 
+# Must be wide enough for gorilla to stand on.
 MIN_ROOMS = 5
 MAX_ROOMS = 8
 
@@ -38,11 +44,13 @@ class BuildingFactory:
             width = ROOM_WIDTH*randint(MIN_ROOMS,MAX_ROOMS) + randint(0, WIN_WIDTH)
             # fill the width of canvas with complete buildings
             if x + width + min_bldg_width > canvas_width:
-                # when remaining space is small, expand bldg to fill the remaining space
+                # when remaining width is too small, expand bldg to fill the remaining space
                 width = canvas_width - x
             # building height not necessarily a multiple of floor height,
-            # so the windows don't all line up
-            height = int( (0.4+random())*canvas_height/2 )
+            # so that windows in different buildings don't all line up
+            height = int( canvas_height * ( BLDG_MIN_HEIGHT 
+                            + random()*(BLDG_MAX_HEIGHT-BLDG_MIN_HEIGHT) )
+                        )
             color = BuildingFactory.choose_color(buildings)
             bldg = Building(canvas, x, baseline, width, height, color)
             x = x + width
@@ -54,10 +62,8 @@ class BuildingFactory:
         """Choose a random color for the next building to draw,
         but avoid too many consecutive buildings of same color.
         """
-        # random colors for buildings
-        bldg_colors = ["firebrick3", "cyan3", "gray80", "light slate gray", "navajo white" ]
         n = len(buildings) - 1
-        color = bldg_colors[randint(0, len(bldg_colors) - 1)]
+        color = BLDG_COLORS[randint(0, len(BLDG_COLORS) - 1)]
         # testing: use all colors sequentially
         #color = bldg_colors[n % len(bldg_colors)]
         if n >= 0 and color == buildings[n].color:
@@ -68,7 +74,7 @@ class BuildingFactory:
 
 class Building(GameCanvasElement):
     """A building shown on the canvas.
-    It has a width, height, color, and some randomly drawn windows.
+    It has a width, height, color, and some randomly lit windows.
     """
 
     def __init__(self, canvas, x, y, width, height, color):
@@ -78,6 +84,7 @@ class Building(GameCanvasElement):
             y - the baseline of the building
             width - the building width
             height - the building height
+            color - color of the building
         """
         self.width = width
         self.height = height
@@ -96,10 +103,10 @@ class Building(GameCanvasElement):
         xright = self.x + self.width
         ytop = self.y - self.height # coordinate system increases downward
 
-        id = self.canvas.create_rectangle(self.x, self.y, xright, ytop, fill=self.color)
+        object_id = self.canvas.create_rectangle(self.x, self.y, xright, ytop, fill=self.color)
         self.make_windows(self.x, ytop)
-        # return the object_id
-        return id
+        # return the object id
+        return object_id
 
     def make_windows(self, xleft, ytop):
         """Draw windows in the building."""

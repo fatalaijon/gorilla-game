@@ -5,7 +5,7 @@ from gamelib import GameCanvasElement
 
 class Explosion(GameCanvasElement):
     """An explosion that destroys other objects as it expands,
-    then contracts to nothing, leaving destruction behind.
+    then contracts to nothing, leaving a hole behind.
     """
     # how much to grow or contract the explosion per time step
     EXPANSION_RATE = 4
@@ -45,8 +45,7 @@ class Explosion(GameCanvasElement):
         return id
 
     def update(self):
-        """Update explosion, add one step to expansion,
-        or contract one step.
+        """Update explosion, expand or contract one step.
         This uses the property:
         width = width of border drawn around oval.  1/2 of border 
            is inside the oval and 1/2 is drawn outside the oval.
@@ -62,20 +61,14 @@ class Explosion(GameCanvasElement):
                     )
             
         elif self.step == Explosion.STEPS:
-            # at maximum size, replace explosion with a burned out
-            # fireball of the same size.
-            # First draw an oval having color of canvas background
-            # and same size as the maximized oval.
+            # When explosion reaches its maximum size, replace the
+            # explosion with a burned out fireball that contracts.
             self.canvas.delete(self.canvas_object_id)
-            # Make original explosion invisible
-            #self.canvas.itemconfigure(self.canvas_object_id,
-            #        fill='',
-            #        outline='',
-            #        width=0
-            #        )
-            # new oval in color of canvas background
+            # Size of new oval in color of canvas background
             self.radius = self.EXPANSION_RATE * Explosion.STEPS
             r = self.radius
+            # First draw an oval having the color of canvas background
+            # and same size as the maximized explosion.
             self.canvas.create_oval(
                     self.x-r, self.y-r, self.x+r, self.y+r,
                     fill=self.canvas['bg'],
@@ -88,9 +81,9 @@ class Explosion(GameCanvasElement):
                 fill=color
                 )
         elif self.step < 2*Explosion.STEPS:
-            # contract to nothing.
-            # Can be done by increase border width or scaling the image.
-            #borderwidth = (self.step - Explosion.STEPS)*Explosion.EXPANSION_RATE   
+            # Contract to nothing.
+            # Can be done by increase border width or scaling the image,
+            # but scaling the image works better and is simpler.
             scale = 1 - (self.step - Explosion.STEPS)/Explosion.STEPS
             self.canvas.scale(self.canvas_object_id,
                     self.x,
@@ -99,16 +92,18 @@ class Explosion(GameCanvasElement):
                     scale
                     )
         elif self.step == 2*Explosion.STEPS:
-            # remove the burned out explosion
+            # Last step. Remove the burned out explosion.
             self.canvas.delete(self.canvas_object_id)
-            # and remove from GameApp so it won't be updated again
+            # remove it from GameApp so it won't be updated again
+            # Not necessary.
             #self.app.remove_element(self)
 
     def color_for_step(self, step):
         """Color to use for explosion at a given step during expansion."""
-        # transition from red to brown by decreasing RED and increasing G & B.
 
-        """itemconfigure throws exception when I specify colors as 'xRRGGBB'.
+        """
+        This code changes the color by decreasing RED and increasing G & B.
+        But itemconfigure throws exception when I specify colors as 'xRRGGBB'.
 
         R_START = 255
         R_FINISH = 128

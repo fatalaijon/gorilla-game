@@ -42,11 +42,13 @@ class Monkey(Sprite):
         (xl, yl, xr, yr) = self.canvas.bbox(self.canvas_object_id)
         dx = abs(x - (xl+xr)/2)
         dy = abs(y - (yl+yr)/2)
-        if dx > w/2: return False
-        if dy > h/2: return False
+        # Use >= or > here?  dx >= w/2 is a most restrictive test
+        # of collision, so banana will need to be a bit closer to monkey.
+        if dx >= w/2: return False
+        if dy >= h/2: return False
         # Exclude the 4 corners of bounding box of the image
         # This is empty space not occupied by the monkey image
-        if dx > w/4 and dy > h/4: return False
+        if dx >= w/4 and dy >= h/4: return False
         return True
 
     def move_to(self, x, y):

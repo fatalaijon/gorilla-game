@@ -69,6 +69,8 @@ class GameCanvasElement:
 
 
 class Text(GameCanvasElement):
+    """Some text displayed on the game canvas."""
+
     def __init__(self, canvas, text, x=0, y=0, **kwargs):
         self.text = text
         super().__init__(canvas, x, y, **kwargs)
@@ -120,6 +122,10 @@ class Sprite(GameCanvasElement):
 
 
 class GameApp(ttk.Frame):
+    """Base class for a game.  This class creates a canvas
+    and provides several call-back methods for initializing elements
+    on the canvas, start/stop animation, and running the animation loop.
+    """
     def __init__(self, parent, canvas_width, canvas_height, update_delay=33):
         super().__init__(parent, width=canvas_width, height=canvas_height)
         self.parent = parent
