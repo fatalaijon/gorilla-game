@@ -72,6 +72,8 @@ class MonkeyGame(GameApp):
             player_x = building.x + building.width//2
             player_y = building.top
             self.players[k].move_to(player_x, player_y)
+            # add player as a canvas element?
+            self.add_element(self.players[k])
 
     def create_players(self):
         """Create the players, consisting of monkeys and their bananas.
@@ -94,7 +96,7 @@ class MonkeyGame(GameApp):
             player = monkey.Monkey(self.canvas, 'images/monkey.png', player_x, player_y)
             player.name = f"Gorilla {k+1}"
             # player 1 throws banana to the left, player 0 throws to right (the default)
-            if k == 1: player.banana.set_x_axis(tk.LEFT)
+            if k == 1: player.set_x_axis(tk.LEFT)
             self.players.append(player)
 
     def create_message_box(self):
@@ -135,10 +137,11 @@ class MonkeyGame(GameApp):
         # Buttons to set the angle of toss
         self.angle_text = tk.Label(controls, text="Angle:  0")
         # up arrow \u2191, down arrow \u2193, triple up \u290A, triple down \u290B
-        self.angleDown = tk.Button(controls, text="\u290B",
+        # upward triangle solid \u25B2 small 25B4  downward triangle solid \u25BC small 25BE
+        self.angleDown = tk.Button(controls, text="\u25BE",
                 command=lambda: self.increase_angle(-5)
                 )
-        self.angleUp = tk.Button(controls, text="\u290A",
+        self.angleUp = tk.Button(controls, text="\u25B4",
                 command=lambda : self.increase_angle(5)
                 )
         # Button to throw banana
@@ -197,6 +200,7 @@ class MonkeyGame(GameApp):
             self.banana.start()
         # redraw the player images (doesn't seem to work)
         (player.render() for player in self.players)
+        self.player.throw()
         # set the animation method to call
         self.animation = self.throwing_banana
         # start animation loop
@@ -213,6 +217,7 @@ class MonkeyGame(GameApp):
         """Banana flies through the air, maybe collides with something."""
         self.banana.update()
         self.banana.render()
+        self.player.update()
         # Check if the banana hits something
         # 1. Hits a gorilla (monkey).  
         # This ends the game once the explosion stops.
@@ -244,6 +249,8 @@ class MonkeyGame(GameApp):
         if self.banana.is_moving:
             self.message_box.set_text(f"({self.banana.x:.0f},{self.banana.y:.0f})")
         else:
+            # Banana stops when it is off the canvas
+            self.message_box.set_text("Missed")
             # next player's turn
             self.stop()
             self.next_player()
@@ -251,6 +258,8 @@ class MonkeyGame(GameApp):
     def exploding(self):
         """An explosion is occurring."""
         self.explosion.update()
+        # give player a chance to update his image, if necessary
+        self.player.update()
         if self.explosion.is_exploding():
             return
         # done exploding, change the state

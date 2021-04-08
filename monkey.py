@@ -1,10 +1,12 @@
 import tkinter as tk
+from PIL import Image
 from gamelib import Sprite
 import game_constants as config
 from banana import Banana
 
 # show the bounding box around monkey image, for development
 SHOW_BOUNDING_BOX = False
+MONKEY_ARM_RAISED_IMAGE = "images/monkey-arm-raised.png"
 
 class Monkey(Sprite):
     """A monkey that can throw bananas.
@@ -19,6 +21,15 @@ class Monkey(Sprite):
         banana_x = x
         banana_y = y - self.height - 10  # 10 pixels above monkey
         self._banana = Banana(canvas, 'images/banana.png', banana_x, banana_y)
+        # images for animating throw
+        image1 = Image.open(image_filename)
+        image2 = Image.open(MONKEY_ARM_RAISED_IMAGE)
+        self.images = [image1,
+                       image2,
+                       image2
+                      ]
+        self.image_index = 0
+        self.is_throwing = False
 
     def init_element(self):
         # Adjust y for height of image so that y is at bottom of image
@@ -30,6 +41,27 @@ class Monkey(Sprite):
         if SHOW_BOUNDING_BOX:
             (xl, yl, xr, yr) = self.canvas.bbox(self.canvas_object_id)
             self.canvas.create_rectangle(xl, yl, xr, yr, outline='grey')
+
+    def set_x_axis(self, direction):
+        """Set the direction of the x-axis.  This determines the
+        direction of banana toss.
+        Argument:
+        direction = +1 or tk.RIGHT if banana is thrown to the right, 
+                    -1 or tk.LEFT if banana is thrown to the left.
+        """
+        if direction == tk.LEFT or direction == -1:
+            # flip images of monkey throwing banana
+            # replace images
+            for k in range(1,len(self.images)):
+                self.images[k] = self.images[k].transpose(Image.FLIP_LEFT_RIGHT)
+        elif direction == tk.RIGHT or direction == 1:
+            # no change needed
+            pass
+        else:
+            raise ValueError("direction must be 1 (tk.RIGHT) or -1 (tk.LEFT)")
+
+        # set x-orientation on the banana, too
+        self.banana.set_x_axis(direction)
 
     def contains(self, x, y):
         """The point x,y is contained in the monkey's image if it
@@ -82,6 +114,25 @@ class Monkey(Sprite):
     def banana(self, value):
         """Set the Monkey's banana. The argument must be a Banana reference."""
         self._banana = value
-        
+    
+    def throw(self, throw_it: bool = True):
+        """Throw a banana. Causes gorilla image to change."""
+        self.is_throwing = throw_it
+
+    def update(self):
+        if self.is_throwing:
+            # animate the throwing motion
+            self.image_index = (self.image_index+1) % len(self.images)
+            # paste function provided by ImageTk.PhotoImage class,
+            # but it is "very slow" according to docs
+            self.image.paste(self.images[self.image_index])
+            if self.image_index == 0:
+                # done throwing motion
+                self.is_throwing = False
+        elif self.image_index > 0:
+            # revert to normal image
+            self.image_index = 0
+            self.image.paste(self.images[self.image_index])
+    
     def __str__(self):
         return f"{self._name}"

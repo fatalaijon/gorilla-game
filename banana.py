@@ -1,7 +1,8 @@
 import tkinter as tk
 import math
+from PIL import Image
 from gamelib import Sprite
-from game_constants import CANVAS_WIDTH, CANVAS_HEIGHT, GRAVITY
+from game_constants import CANVAS_WIDTH, CANVAS_HEIGHT, GRAVITY, MAX_BANANA_SPEED
 
 
 class Banana(Sprite):
@@ -14,8 +15,6 @@ class Banana(Sprite):
     externally.
     The banana remembers it's initial speed and direction for next throw.
     """
-    # maximum initial speed of banana
-    MAX_SPEED = 99
 
     def __init__(self, canvas, image_filename, x=0, y=0):
         super().__init__(canvas, image_filename, x, y)
@@ -25,11 +24,10 @@ class Banana(Sprite):
         self.angle = 45
         self.speed = 20
         # create images for a spinning banana, by rotating existing image
-        from PIL import Image
         image = Image.open(image_filename)
         self.images = [image]
-        for angle in range(45,360,45):
-            self.images.append( image.rotate(angle) )
+        for angle in range(45, 360, 45):
+            self.images.append(image.rotate(angle))
 
     def init_element(self):
         self.vx = 0
@@ -37,7 +35,7 @@ class Banana(Sprite):
 
         self.start_x = self.x
         self.start_y = self.y
-        # starting speed
+        # starting speed (reset in constructor)
         self._speed = 10
         # starting angle is in degrees
         self._angle = 0
@@ -58,7 +56,7 @@ class Banana(Sprite):
         
         The speed must be between 0 and MAX_SPEED.
         """
-        if 0 <= value <= Banana.MAX_SPEED:
+        if 1 <= value <= MAX_BANANA_SPEED:
             self._speed = value
     
     @property
@@ -69,18 +67,17 @@ class Banana(Sprite):
     @angle.setter
     def angle(self, degrees):
         """Set the angle of banana toss in degrees above horizontal."""
-        MIN_ANGLE = -45 # if gorillas are on buildings, need to allow < 0
-        MAX_ANGLE = 90  # throwing vertically is suicide
+        MIN_ANGLE = -50 # for gorillas on buildings, need to allow < 0
+        MAX_ANGLE =  90 # throwing vertically is suicide
         if MIN_ANGLE <= degrees <= MAX_ANGLE:
             self._angle = degrees
 
     def set_x_axis(self, direction):
-        """Set the orientation of the x-axis.  This determines the
-        direction of initial x-velocity of banana toss, given the angle.
-        If angle = 45 (degrees) and direction==1 then banana is tossed
-        to the right. If direction==-1 then banana is tossed to the left.
-
-        direction = +1 if x-axis increases to the right, -1 if increases to left.
+        """Set the direction of the x-axis.  This determines the
+        direction of banana toss.
+        Argument:
+        direction = +1 or tk.RIGHT if banana is thrown to the right, 
+                    -1 or tk.LEFT if banana is thrown to the left.
         """
         if direction == tk.LEFT:
             self.x_axis = -1

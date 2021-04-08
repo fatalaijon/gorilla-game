@@ -89,6 +89,10 @@ While the banana is moving, in the Banana `update` method "paste"
 the next image from the sequence into the banana PhotoImage object.  
 This makes the banana appear to spin as it moves.
 
+Documentation for PIL:
+* Image <https://pillow.readthedocs.io/en/stable/reference/Image.html>
+* ImageTk <https://pillow.readthedocs.io/en/stable/reference/ImageTk.html>
+
  
 ## Dialog Box
 
