@@ -17,6 +17,13 @@ Use the Up/Down arrow keys to change the angle of banana toss; +/- keys to chang
 
 The game remembers each player's previously selected banana speed and angle.
 
+## Customize the Game
+
+You can easily customize the game by changing the values of some constants.
+The files contain comments describing the meaning of the constants.
+
+* Want a bigger canvas or more gravity?  Edit `game_constants.py`.
+* Want different building colors and heights? Edit the constants at the top of `building.py`.
 
 ## Changes to Starter Code
 

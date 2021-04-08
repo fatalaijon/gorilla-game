@@ -21,6 +21,7 @@ ROOM_WIDTH = 2*WIN_WIDTH
 MIN_ROOMS = 5
 MAX_ROOMS = 8
 
+
 class BuildingFactory:
     """Factory for buildings, of course."""
 

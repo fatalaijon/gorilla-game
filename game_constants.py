@@ -4,16 +4,22 @@ Some source files contain constants specific to those objects.
 
 Constants for building dimensions and colors are in building.py
 """
+# Width and height of the game area, measured in pixels.
+# This does not include the control panel at bottom.
+# A 1080p display has 1920x1080 pixels. Typical laptop is 1366 x 768.
 CANVAS_WIDTH = 1000
 CANVAS_HEIGHT = 640
 # Canvas background color.
-# Preferrably a dark color that does not appear in images 
+# Preferrably a dark color that is distinct from the images
 # of monkey, banana, or buildings.
+# For a list of all Tkinter colors and their names, see:
+# http://www.science.smith.edu/dftwiki/index.php/Color_Charts_for_TKinter
+# (that page also has a Python script you can run to create the color chart)
 CANVAS_COLOR = "dark blue"
 # Color of the player names and scores
 SCOREBOARD_COLOR = "dark blue"
 # Delay between animation updates, in millisecs.
-UPDATE_DELAY = 60  # 33
+UPDATE_DELAY = 60  # or 33 (33 ms yields 30 frames per second)
 # Constant for force of gravity. Larger value makes things fall faster.
 GRAVITY = 1
 # A tag (string) used to identify gorilla objects on canvas
