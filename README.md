@@ -6,6 +6,12 @@ A Python re-implementation of the classic Basic Gorilla game.
 
 ## How to Play
 
+Requires Python 3.6 or newer and the `pillow` package for image 
+manipulation.  Install pillow using:
+```shell
+pip3 install pillow
+```
+
 Run `monkey_game.py` in a Python 3.6 or newer interpretter:
 ```shell
 python3 monkey_game.py
@@ -13,7 +19,7 @@ python3 monkey_game.py
 
 The goal is to throw a banana that hits the other gorilla.
 
-Use the Up/Down arrow keys to change the angle of banana toss; +/- keys to change the speed of banana toss. Press SPACE to toss a banana. Alternatively, you can press buttons at the bottom of screen for these actions.
+Use the Up & Down arrow keys to change the angle of banana toss; +/- keys to change the speed of banana toss. Press SPACE key to toss a banana. Alternatively, you can press buttons at the bottom of window for these actions.
 
 The game remembers each player's previously selected banana speed and angle.
 
@@ -23,12 +29,13 @@ You can easily customize the game by changing the values of some constants.
 The files contain comments describing the meaning of the constants.
 
 * Want a bigger canvas or more gravity?  Edit `game_constants.py`.
-* Want different building colors and heights? Edit the constants at the top of `building.py`.
+* Want different building colors and heights? Edit the constants in `building.py`.
 
 ## Changes to Starter Code
 
 
 In `gamelib.GameApp`:
+
 * `create_canvas()` returns the canvas reference instead of setting `self.canvas`.
 * add methods `add_element(element)` and `remove_element(element)` so subclasses don't need to directly modify the elements attribute
 * `contains(x, y)` returns True if a game element contains point (x,y). This method is needed to detect collision between banana and a game element.
@@ -54,7 +61,9 @@ Source files
 
 ## Images and Animation
 
-For a better implementation of PhotoImage:
+These classes are provided by the Python `pillow` package.
+
+For a better implementation of PhotoImage use:
 ```python
 from PIL import ImageTk, Image
 
@@ -67,7 +76,7 @@ documentation states that `ImageTk.PhotoImage` is a
 The `ImageTk.PhotoImage` constructor also accepts `file=` and `data=`
 parameters to initialize the photo image object.
 
-The `PIL.Image` class has a method to rotate an image.
+The `PIL.Image` class has methods rotate or flip an image.
 We can use this to create rotated bananas for animation:
 ```python
 image = Image.open("images/banana.png")

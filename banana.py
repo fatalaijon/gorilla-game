@@ -94,7 +94,8 @@ class Banana(Sprite):
             self.y -= self.vy
             self.vy -= GRAVITY
             # choose next image
-            self.image_index = (self.image_index+1) % len(self.images)
+            self.image_index = (self.image_index 
+                                - self.x_axis) % len(self.images)
             # paste function provided by ImageTk.PhotoImage class,
             # but it is "very slow" according to docs
             # pasted image must be same size as original image

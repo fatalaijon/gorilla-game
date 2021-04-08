@@ -137,7 +137,7 @@ class MonkeyGame(GameApp):
         # Buttons to set the angle of toss
         self.angle_text = tk.Label(controls, text="Angle:  0")
         # up arrow \u2191, down arrow \u2193, triple up \u290A, triple down \u290B
-        # upward triangle solid \u25B2 small 25B4  downward triangle solid \u25BC small 25BE
+        # upward solid triangle 25B2 small 25B4, downward solid triangle 25BC small 25BE
         self.angleDown = tk.Button(controls, text="\u25BE",
                 command=lambda: self.increase_angle(-5)
                 )
