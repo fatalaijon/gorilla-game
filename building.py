@@ -3,7 +3,7 @@ import tkinter as tk
 from random import random, randint
 
 # Probability lights are on in a room in a building
-PROB_LIGHT_ON = 0.8
+PROB_LIGHT_ON = 0.7
 LIGHT_WINDOW = "yellow2"
 DARK_WINDOW = "gray35"
 # Min and Max building height, as a fraction of the canvas height
