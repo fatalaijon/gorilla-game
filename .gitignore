@@ -1,8 +1,7 @@
 __pycache__
 .vscode
 .idea
-# virtual environment directories
-.env
-.venv
-git-credentials
 github-token
+# virtual environment directories
+env
+.env
