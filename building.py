@@ -40,6 +40,8 @@ class BuildingFactory:
         baseline = canvas_height
         min_bldg_width = MIN_ROOMS*ROOM_WIDTH
         x = 0
+        # building_index is used to create tags for buildings and windows
+        building_index = 1
         buildings = []
         while x < canvas_width:
             width = ROOM_WIDTH*randint(MIN_ROOMS,MAX_ROOMS) + randint(0, WIN_WIDTH)
@@ -53,8 +55,11 @@ class BuildingFactory:
                             + random()*(BLDG_MAX_HEIGHT-BLDG_MIN_HEIGHT) )
                         )
             color = BuildingFactory.choose_color(buildings)
-            bldg = Building(canvas, x, baseline, width, height, color)
+            # a unique tag for this building
+            tag = "building"+str(building_index)
+            bldg = Building(canvas, x, baseline, width, height, color, tag)
             x = x + width
+            building_index += 1
             buildings.append(bldg)
         return buildings
 
@@ -78,7 +83,7 @@ class Building(GameCanvasElement):
     It has a width, height, color, and some randomly lit windows.
     """
 
-    def __init__(self, canvas, x, y, width, height, color):
+    def __init__(self, canvas, x, y, width, height, color, tag="building"):
         """Initialize a new building.
         Arguments:
             x - the left edge of the building
@@ -90,6 +95,7 @@ class Building(GameCanvasElement):
         self.width = width
         self.height = height
         self.color = color
+        self.tag = tag
         super().__init__(canvas, x, y)
         # called by GameCanvasElement onstructor
         #self.canvas_object_id = self.init_canvas_object()
@@ -104,7 +110,11 @@ class Building(GameCanvasElement):
         xright = self.x + self.width
         ytop = self.y - self.height # coordinate system increases downward
 
-        object_id = self.canvas.create_rectangle(self.x, self.y, xright, ytop, fill=self.color)
+        object_id = self.canvas.create_rectangle(
+                self.x, self.y, 
+                xright, ytop, 
+                fill=self.color,
+                tag=self.tag)
         self.make_windows(self.x, ytop)
         # return the object id
         return object_id
@@ -112,28 +122,52 @@ class Building(GameCanvasElement):
     def make_windows(self, xleft, ytop):
         """Draw windows in the building."""
         # How many floors can we fit only building?
-        nfloors = self.height//FLOOR_HEIGHT
+        self.floors = self.height//FLOOR_HEIGHT
         # How many rooms per floor? (horizontal)
-        nrooms = (self.width - WIN_WIDTH//2)//ROOM_WIDTH
+        self.rooms = (self.width - WIN_WIDTH//2)//ROOM_WIDTH
         # In the original QBasic Gorilla game, the windows are aligned
         # starting from top of building, with excess space at the bottom
-        for row in range(0,nfloors):
+        for row in range(0,self.floors):
             # y coord of top edge of windows on this floor
             y = ytop + WIN_HEIGHT//2 + row*FLOOR_HEIGHT
             # x coord of individual windows
-            for col in range(0, nrooms):
+            for col in range(0, self.rooms):
                 x = xleft + WIN_WIDTH + col*ROOM_WIDTH 
                 # randomly choose lights on (LIGHT_WINDOW) or off (DARK_WINDOW)
                 color = LIGHT_WINDOW if random() < PROB_LIGHT_ON else DARK_WINDOW
+                # so we can identify windows with lights on/off
+                tag = self.tag + color
                 # draw the window
                 self.canvas.create_rectangle(
                         x, y, 
                         x+WIN_WIDTH, y+WIN_HEIGHT, 
-                        fill=color
+                        fill=color,
+                        tag=tag
                         )
 
     def contains(self, x, y):
         return self.x < x < (self.x + self.width) and self.y-self.height < y < self.y
+
+    def update(self):
+        # get all windows with lights on
+        tag_lights_on = self.tag + LIGHT_WINDOW
+        light_windows = self.canvas.find_withtag(tag_lights_on)
+        # randomly turn off a light, but not too often
+        total_windows = self.floors*self.rooms
+        #TODO incorporate the refresh rate into this probability
+        prob_turn_off = 0.005*(len(light_windows)-2)/total_windows
+        if random() > prob_turn_off:
+            return
+        # turn off one light
+        window_id = light_windows[randint(0,len(light_windows)-1)]
+        tag_lights_off = self.tag + DARK_WINDOW
+        self.canvas.itemconfigure(window_id, 
+                fill=DARK_WINDOW,
+                tag=tag_lights_off
+                )
+        print("lights off in room", window_id)
+        # remove the "lights on" tag from this window
+        self.canvas.dtag(window_id, tag_lights_on)
 
     def render(self):
         # no need to redraw or update a building

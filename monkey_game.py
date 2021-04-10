@@ -39,6 +39,7 @@ class MonkeyGame(GameApp):
         self.init_control_panel()
         # Set next player to take a turn and the animation state
         self.next_player()
+        self.start()
 
     def init_game_objects(self):
         """Initial objects on the game canvas."""
@@ -211,7 +212,8 @@ class MonkeyGame(GameApp):
     ##
     def idle(self):
         """Waiting for player to take a turn."""
-        pass
+        for bldg in self.buildings:
+            bldg.update()
 
     def throwing_banana(self):
         """Banana flies through the air, maybe collides with something."""
@@ -252,7 +254,7 @@ class MonkeyGame(GameApp):
             # Banana stops when it is off the canvas
             self.message_box.set_text("Missed")
             # next player's turn
-            self.stop()
+            #self.stop()
             self.next_player()
 
     def exploding(self):
@@ -281,6 +283,7 @@ class MonkeyGame(GameApp):
 
     def game_over(self, winner_index: int):
         """Update scores and ask to play again."""
+        self.stop()
         score = self.scores[winner_index]
         score.set(score.get()+1)
         winner = self.players[winner_index]
