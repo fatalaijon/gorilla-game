@@ -1,5 +1,11 @@
 import tkinter as tk
-from PIL import Image
+try:
+    from PIL import Image
+except ModuleNotFoundError:
+    print("The 'pillow' package is needed, but not appear to be installed.")
+    print("Install it using this command:")
+    print("    pip3 install pillow")
+    exit()
 from gamelib import Sprite
 import game_constants as config
 from banana import Banana
