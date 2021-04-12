@@ -1,7 +1,6 @@
 from gamelib import GameCanvasElement
 import tkinter as tk
 from random import random, randint
-from monkey_game import log
 
 # Probability lights are on in a room in a building
 PROB_LIGHT_ON = 0.7
@@ -166,7 +165,6 @@ class Building(GameCanvasElement):
                 fill=DARK_WINDOW,
                 tag=tag_lights_off
                 )
-        log("lights off in room", window_id)
         # remove the "lights on" tag from this window
         self.canvas.dtag(window_id, tag_lights_on)
 

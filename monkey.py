@@ -1,8 +1,14 @@
 import tkinter as tk
-from PIL import Image
 from gamelib import Sprite
 import game_constants as config
 from banana import Banana
+try:
+    from PIL import Image
+except ModuleNotFoundError:
+    print("Rquires the pillow package, which does not appear to be installed.")
+    print("Install it using the command:")
+    print("   pip3 install pillow")
+    exit()
 
 # show the bounding box around monkey image, for development
 SHOW_BOUNDING_BOX = False
