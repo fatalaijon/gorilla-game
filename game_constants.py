@@ -7,7 +7,7 @@ Constants for building dimensions and colors are in building.py
 # Width and height of the game area, measured in pixels.
 # This does not include the control panel at bottom.
 # A 1080p display has 1920x1080 pixels. Typical laptop is 1366 x 768.
-CANVAS_WIDTH = 1000
+CANVAS_WIDTH = 1120
 CANVAS_HEIGHT = 640
 # Canvas background color.
 # Use a color that is distinct from images of monkey, banana, or buildings.
