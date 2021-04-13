@@ -104,7 +104,7 @@ Documentation for Pillow:
  
 ## Dialog Box
 
-When a gorilla wins, the game shows a dialog box asking if user wants to play again.
+The game shows a dialog box when a player wins.
 An easy way to do this is using `tkinter.messagebox`:
 ```python
 from tkinter import messagebox
