@@ -17,19 +17,20 @@ Run `monkey_game.py` in a Python 3.6 or newer interpretter:
 python3 monkey_game.py
 ```
 
-The goal is to throw a banana that hits the other gorilla.
+**Goal:** throw a banana that hits the other gorilla.
 
-Use the Up & Down arrow keys to change the angle of banana toss; +/- keys to change the speed of banana toss. Press SPACE key to toss a banana. Alternatively, you can press buttons at the bottom of window for these actions.
+Use the Up & Down arrow keys to change the angle of banana toss; +/- keys to change the speed of banana toss. Press SPACE key to toss a banana. Alternatively, press buttons at the bottom of window for these actions.
 
 The game remembers each player's previously selected banana speed and angle.
 
 ## Customize the Game
 
 You can easily customize the game by changing the values of some constants.
-The files contain comments describing the meaning of the constants.
 
 * Want a bigger canvas or more gravity?  Edit `game_constants.py`.
 * Want different building colors and heights? Edit the constants in `building.py`.
+
+Comments in the files describe the meaning of the constants.
 
 ## Changes to Starter Code
 
@@ -38,7 +39,7 @@ In `gamelib.GameApp`:
 
 * `create_canvas()` returns the canvas reference instead of setting `self.canvas`.
 * add methods `add_element(element)` and `remove_element(element)` so subclasses don't need to directly modify the elements attribute
-* `contains(x, y)` returns True if a game element contains point (x,y). This method is needed to detect collision between banana and a game element.
+* `contains(x, y)` returns True if a game element contains point (x,y). This method is used to detect collision between banana and a game element.
 * `start()` sets a reference to the timer id returned by `after` so animation can be stopped.
 * `stop()` new method to stop animation using the timer id
 * `running()` test if the animation loop is running
@@ -51,11 +52,12 @@ In `gamelib.GameCanvasElement`
 * make `canvas` a property that returns `self._canvas`
 
 In `gamelib.Sprite`
-* add properties `width` and `height` as convenience to get the Sprite's image width and height
+
+* add properties `width` and `height` to get the Sprite's image width and height
 
 Source files
 
-* Split code in `monkeys.py` to separate files for each class.
+* Split the code in `monkeys.py` to separate files for each class.
 * MonkeyGame class and the "main" block to start it moved to `monkey_game.py`.
 * Move images to `images` subdirectory.
 * Add `game_constants.py` for global constants.
@@ -75,6 +77,14 @@ documentation states that `ImageTk.PhotoImage` is a
 The `ImageTk.PhotoImage` constructor also accepts `file=` and `data=`
 parameters to initialize the photo image object.
 
+`PhotoImage` also has a method we can use to change the image shown
+on a given PhotoImage object:
+```
+paste(image)
+    Paste Image object into a PhotoImage. `image` must have the same dimensions
+    as the original image.
+```
+
 The `PIL.Image` class has methods rotate or flip an image.
 We use this to create rotated bananas for animation:
 ```python
@@ -84,13 +94,6 @@ self.images = [image]
 # add rotated version of the original image
 for angle in range(45,360,45):
      self.images.append( image.rotate(angle) )
-```
-
-Then use the `paste(image)` method of ImageTk.PhotoImage to change the image:
-```
-paste(image)
-    Paste Image object into a PhotoImage. `image` must have the same dimensions
-    as the original image.
 ```
 
 While the banana is moving, the Banana `update()` method will "paste" 
@@ -104,7 +107,7 @@ Documentation for Pillow:
  
 ## Dialog Box
 
-When a gorilla wins, the game shows a dialog box asking if user wants to play again.
+The game shows a dialog box when a player wins.
 An easy way to do this is using `tkinter.messagebox`:
 ```python
 from tkinter import messagebox
