@@ -30,7 +30,7 @@ You can easily customize the game by changing the values of some constants.
 * Want a bigger canvas or more gravity?  Edit `game_constants.py`.
 * Want different building colors and heights? Edit the constants in `building.py`.
 
-Comments in the files describe the meaning of the constants.
+Comments in the files describe the meaning of each constant.
 
 ## Changes to Starter Code
 
