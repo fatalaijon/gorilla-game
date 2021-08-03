@@ -7,10 +7,10 @@ Constants for building dimensions and colors are in building.py
 # Width and height of the game area, measured in pixels.
 # This does not include the control panel at bottom.
 # A 1080p display has 1920x1080 pixels. Typical laptop is 1366 x 768.
-CANVAS_WIDTH = 1000
-CANVAS_HEIGHT = 640
+CANVAS_WIDTH = 1200
+CANVAS_HEIGHT = 800
 # Canvas background color.
-# Use a color that is distinct from images of monkey, banana, or buildings.
+# Use a color that is distinct from images of gorilla, banana, or buildings.
 # For a list of all Tkinter colors and their names, see:
 # http://www.science.smith.edu/dftwiki/index.php/Color_Charts_for_TKinter
 # (that page also has a Python script you can run to create a color chart)

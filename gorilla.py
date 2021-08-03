@@ -10,26 +10,26 @@ except ModuleNotFoundError:
     print("   pip3 install pillow")
     exit()
 
-# show the bounding box around monkey image, for development
+# show the bounding box around gorilla image, for development
 SHOW_BOUNDING_BOX = False
-MONKEY_ARM_RAISED_IMAGE = "images/monkey-arm-raised.png"
+GORILLA_ARM_RAISED_IMAGE = "images/gorilla-arm-raised.png"
 
-class Monkey(Sprite):
-    """A monkey that can throw bananas.
-    Each monkey owns a reusable banana, so that the banana remembers
+class Gorilla(Sprite):
+    """A gorilla that can throw bananas.
+    Each gorilla owns a reusable banana, so that the banana remembers
     it initial speed and angle between throws.
     """
     def __init__(self, canvas, image_filename, x=0, y=0):
         super().__init__(canvas, image_filename, x, y)
-        self._name = "Monkey"
-        # every monkey has a banana, of course
-        # The initial position of each banana is above the monkey's head
+        self._name = "Gorilla"
+        # every gorilla has a banana, of course
+        # The initial position of each banana is above the gorilla's head
         banana_x = x
-        banana_y = y - self.height - 10  # 10 pixels above monkey
+        banana_y = y - self.height - 10  # 10 pixels above gorilla
         self._banana = Banana(canvas, 'images/banana.png', banana_x, banana_y)
         # images for animating throw
         image1 = Image.open(image_filename)
-        image2 = Image.open(MONKEY_ARM_RAISED_IMAGE)
+        image2 = Image.open(GORILLA_ARM_RAISED_IMAGE)
         self.images = [image1,
                        image2,
                        image2
@@ -40,9 +40,9 @@ class Monkey(Sprite):
     def init_element(self):
         # Adjust y for height of image so that y is at bottom of image
         self.canvas.itemconfigure(self.canvas_object_id,
-                    anchor=tk.S    # self.y is at the bottom of monkey image.
+                    anchor=tk.S    # self.y is at the bottom of gorilla image.
                     )
-        # add a tag for identifying and selecting monkeys on the canvas
+        # add a tag for identifying and selecting gorilla on the canvas
         self.canvas.addtag_withtag(config.GORILLA, self.canvas_object_id)
         if SHOW_BOUNDING_BOX:
             (xl, yl, xr, yr) = self.canvas.bbox(self.canvas_object_id)
@@ -56,7 +56,7 @@ class Monkey(Sprite):
                     -1 or tk.LEFT if banana is thrown to the left.
         """
         if direction == tk.LEFT or direction == -1:
-            # flip images of monkey throwing banana
+            # flip images of gorilla throwing banana
             # replace images
             for k in range(1,len(self.images)):
                 self.images[k] = self.images[k].transpose(Image.FLIP_LEFT_RIGHT)
@@ -70,7 +70,7 @@ class Monkey(Sprite):
         self.banana.set_x_axis(direction)
 
     def contains(self, x, y):
-        """The point x,y is contained in the monkey's image if it
+        """The point x,y is contained in the gorilla's image if it
         hits any part of the image.  Exclude empty space at corners.
         """
         w = self.width
@@ -81,11 +81,11 @@ class Monkey(Sprite):
         dx = abs(x - (xl+xr)/2)
         dy = abs(y - (yl+yr)/2)
         # Use >= or > here?  dx >= w/2 is a most restrictive test
-        # of collision, so banana will need to be a bit closer to monkey.
+        # of collision, so banana will need to be a bit closer to gorilla.
         if dx >= w/2: return False
         if dy >= h/2: return False
         # Exclude the 4 corners of bounding box of the image
-        # This is empty space not occupied by the monkey image
+        # This is empty space not occupied by the gorilla image
         if dx >= w/4 and dy >= h/4: return False
         return True
 
@@ -118,7 +118,7 @@ class Monkey(Sprite):
 
     @banana.setter
     def banana(self, value):
-        """Set the Monkey's banana. The argument must be a Banana reference."""
+        """Set the Gorilla's banana. The argument must be a Banana reference."""
         self._banana = value
     
     def throw(self, throw_it: bool = True):

@@ -12,9 +12,9 @@ Install pillow using:
 pip3 install pillow
 ```
 
-Run `monkey_game.py` in a Python 3.6 or newer interpretter:
+Run the main class in Python 3.6 or newer:
 ```shell
-python3 monkey_game.py
+python3 gorilla_game.py
 ```
 
 The goal is to throw a banana that hits the other gorilla.
@@ -56,7 +56,7 @@ In `gamelib.Sprite`
 Source files
 
 * Split code in `monkeys.py` to separate files for each class.
-* MonkeyGame class and the "main" block to start it moved to `monkey_game.py`.
+* MonkeyGame class and the "main" block to start it moved to `gorilla_game.py`.
 * Move images to `images` subdirectory.
 * Add `game_constants.py` for global constants.
 

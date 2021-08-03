@@ -10,13 +10,13 @@ from building import BuildingFactory
 from explosion import Explosion
 import game_constants as config
 # avoid circular imports
-import monkey
+import gorilla
 
 
-class MonkeyGame(GameApp):
-    """The main class for the Monkey game consists of a canvas
-    and game elements, principly monkeys, buildings, and a banana
-    for each monkey.  There is a control panel below the canvas
+class GorillaGame(GameApp):
+    """The main class for the Gorilla game consists of a canvas
+    and game elements, principly gorillas, buildings, and a banana
+    for each gorilla.  There is a control panel below the canvas
     that displays or changes the angle & speed of banana toss,
     and shows the players' scores.
     """
@@ -77,9 +77,9 @@ class MonkeyGame(GameApp):
             self.add_element(self.players[k])
 
     def create_players(self):
-        """Create the players, consisting of monkeys and their bananas.
+        """Create the players, consisting of gorillas and their bananas.
 
-        Each player (monkey) gets a reusable banana to throw.
+        Each player (gorilla) gets a reusable banana to throw.
         Reuse the same banana so it remembers it's initial speed and angle.
         The players are implemented as canvas objects. Hence, if you clear
         the canvas the player images are destroyed, too.
@@ -93,8 +93,8 @@ class MonkeyGame(GameApp):
         for k in (0,1):
             player_x = 100 if k == 1 else canvas_width - 100
             player_y = canvas_height
-            # Monkey constructor will create the monkey's banana
-            player = monkey.Monkey(self.canvas, 'images/monkey.png', player_x, player_y)
+            # gorilla constructor will create the gorilla's banana
+            player = gorilla.Gorilla(self.canvas, 'images/gorilla.png', player_x, player_y)
             player.name = f"Gorilla {k+1}"
             # player 1 throws banana to the left, player 0 throws to right (the default)
             if k == 1: player.set_x_axis(tk.LEFT)
@@ -187,11 +187,11 @@ class MonkeyGame(GameApp):
         pass
 
     def add_element(self, element):
-        """Override GameApp.add_element to keep the monkeys (gorillas) on top
+        """Override GameApp.add_element to keep the gorillas on top
         of list of canvas elements, so they are drawn last.
         """
         super().add_element(element)
-        if not isinstance(element, monkey.Monkey):
+        if not isinstance(element, gorilla.Gorilla):
             self.canvas.tag_raise(config.GORILLA, element.canvas_object_id)
 
     def throw_banana(self):
@@ -221,7 +221,7 @@ class MonkeyGame(GameApp):
         self.banana.render()
         self.player.update()
         # Check if the banana hits something
-        # 1. Hits a gorilla (monkey).  
+        # 1. Hits a gorilla.  
         # This ends the game once the explosion stops.
         for player in self.players:
             if self.banana.hits(player):
@@ -268,7 +268,7 @@ class MonkeyGame(GameApp):
         self.craters.append(self.explosion)
         hit_object = self.explosion.hits
         self.stop()
-        if isinstance(hit_object, monkey.Monkey):
+        if isinstance(hit_object, gorilla.Gorilla):
             try:
                 # index of the winning player
                 loser = self.players.index(hit_object)
@@ -303,7 +303,7 @@ class MonkeyGame(GameApp):
     
     def next_player(self):
         """Select the next player to take a turn.
-        This sets self.monkey, self.banana, and updates controls as side effects.
+        This sets self.gorilla, self.banana, and updates controls as side effects.
         """
         self.player_index = 1 - self.player_index
         self.player = self.players[self.player_index]
@@ -327,6 +327,6 @@ if __name__ == "__main__":
  
     # do not allow window resizing
     root.resizable(False, False)
-    app = MonkeyGame(root, config.CANVAS_WIDTH, config.CANVAS_HEIGHT, config.UPDATE_DELAY)
+    app = GorillaGame(root, config.CANVAS_WIDTH, config.CANVAS_HEIGHT, config.UPDATE_DELAY)
     #app.start()      # this calls animate
     root.mainloop()
