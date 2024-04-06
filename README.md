@@ -4,7 +4,7 @@ A Python re-implementation of the classic Basic Gorilla game.
 
 ![game screenshot](images/gorilla-game.png)
 
-## How to Play
+## Installation
 
 Requires Python 3.6 or newer and the [pillow][pillow] imaging package.
 Install pillow using:
@@ -12,9 +12,12 @@ Install pillow using:
 pip3 install pillow
 ```
 
-Run `monkey_game.py` in a Python 3.6 or newer interpretter:
+
+## How to Play
+
+Run `gorilla_name.py` in a Python 3.6 or newer interpretter:
 ```shell
-python3 monkey_game.py
+python3 gorilla_game.py
 ```
 
 **Goal:** throw a banana that hits the other gorilla.
@@ -25,12 +28,12 @@ The game remembers each player's previously selected banana speed and angle.
 
 ## Customize the Game
 
-You can easily customize the game by changing the values of some constants.
-
-* Want a bigger canvas or more gravity?  Edit `game_constants.py`.
-* Want different building colors and heights? Edit the constants in `building.py`.
-
+You can customize the game by changing the values of some constants.
 Comments in the files describe the meaning of each constant.
+
+* Change canvas size or gravity. Edit `game_constants.py`.
+* Modify building colors, sizes, or heights. Edit the constants in `building.py`.
+
 
 ## Changes to Starter Code
 
@@ -62,11 +65,13 @@ Source files
 * Move images to `images` subdirectory.
 * Add `game_constants.py` for global constants.
 
-## Images and Animation
+## Developer Notes on Images and Animation
 
-These classes are provided by the Python [pillow][pillow] package.
+The classes below are provided by the Python [pillow][pillow] package.
 
-For a better implementation of PhotoImage use:
+Pillow provids a better implementation of PhotoImage than tkinter.
+To use it:
+
 ```python
 from PIL import ImageTk, Image
 
@@ -87,6 +92,7 @@ paste(image)
 
 The `PIL.Image` class has methods rotate or flip an image.
 We use this to create rotated bananas for animation:
+
 ```python
 image = Image.open("images/banana.png")
 # an array to store images
@@ -101,6 +107,7 @@ the next image from the sequence into the banana PhotoImage object.
 This makes the banana appear to spin as it moves.
 
 Documentation for Pillow:
+
 * Image <https://pillow.readthedocs.io/en/stable/reference/Image.html>
 * ImageTk <https://pillow.readthedocs.io/en/stable/reference/ImageTk.html>
 
@@ -112,7 +119,7 @@ An easy way to do this is using `tkinter.messagebox`:
 ```python
 from tkinter import messagebox
 
-message = "Play\nagain?"
+message = "Play again?"
 reply = messagebox.askyesno("Game Over", message)  # Returns true or false
 if reply:
     print("play another game")

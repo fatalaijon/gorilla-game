@@ -13,8 +13,8 @@ import game_constants as config
 import monkey
 
 
-class MonkeyGame(GameApp):
-    """The main class for the Monkey game consists of a canvas
+class GorillaGame(GameApp):
+    """The main class for the Gorilla game consists of a canvas
     and game elements, principly monkeys, buildings, and a banana
     for each monkey.  There is a control panel below the canvas
     that displays or changes the angle & speed of banana toss,
@@ -324,6 +324,6 @@ if __name__ == "__main__":
  
     # do not allow window resizing
     root.resizable(False, False)
-    app = MonkeyGame(root, config.CANVAS_WIDTH, config.CANVAS_HEIGHT, config.UPDATE_DELAY)
+    app = GorillaGame(root, config.CANVAS_WIDTH, config.CANVAS_HEIGHT, config.UPDATE_DELAY)
     #app.start()      # this calls animate
     root.mainloop()
